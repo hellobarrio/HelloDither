@@ -4,6 +4,7 @@ import * as React from "react";
 import { Music, Pause, Play, X } from "lucide-react";
 import { Section } from "./section";
 import { Dropzone } from "../controls/dropzone";
+import { YoutubeInput } from "../controls/youtube-input";
 import { ValueSlider } from "../controls/value-slider";
 import { Segmented } from "../controls/segmented";
 import { SwitchRow } from "../controls/switch-row";
@@ -29,13 +30,21 @@ export function AudioSection() {
   return (
     <Section title="Audio Reactivity" icon={<Music size={13} />}>
       {!a.loaded ? (
-        <Dropzone
-          accept={{ "audio/*": [".mp3", ".wav"] }}
-          onFile={(f) => actions.loadFile(f, "audio")}
-          icon={<Music size={20} />}
-          label="Drop audio"
-          hint="MP3 · WAV"
-        />
+        <div className="flex flex-col gap-2">
+          <Dropzone
+            accept={{ "audio/*": [".mp3", ".wav"] }}
+            onFile={(f) => actions.loadFile(f, "audio")}
+            icon={<Music size={20} />}
+            label="Drop audio"
+            hint="MP3 · WAV"
+          />
+          <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.04em] text-(--fg-2)">
+            <div className="h-px flex-1 bg-(--fg-2) opacity-40" />
+            <span>oppure</span>
+            <div className="h-px flex-1 bg-(--fg-2) opacity-40" />
+          </div>
+          <YoutubeInput />
+        </div>
       ) : (
         <div className="flex max-w-full min-w-0 items-center gap-2.5 overflow-hidden border border-foreground bg-(--hb-black) px-3 py-2.5 text-(--hb-grigio)">
           <button

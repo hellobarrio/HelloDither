@@ -12,6 +12,7 @@ import {
 import { createAudioEngine } from "@/lib/engines/audio-engine";
 import { createDitherEngine } from "@/lib/engines/dither-engine";
 import { exportGIF } from "@/lib/engines/gif-export";
+import { loadYoutubeAsFile } from "@/lib/youtube-loader";
 import type {
   AudioEngine,
   AudioReading,
@@ -25,11 +26,17 @@ import type {
 
 type FileRole = "media" | "audio";
 
+interface LoadYoutubeOptions {
+  onProgress?: (percent: number, label: string) => void;
+  signal?: AbortSignal;
+}
+
 interface DitherActions {
   update: (patch: Partial<DitherState>) => void;
   setCanvasRef: (el: HTMLCanvasElement | null) => void;
   setStageEl: (el: HTMLElement | null) => void;
   loadFile: (file: File, role: FileRole) => void;
+  loadFromYoutube: (url: string, opts?: LoadYoutubeOptions) => Promise<void>;
   clearMedia: () => void;
   clearAudio: () => void;
   togglePlayMedia: () => void;
@@ -637,6 +644,21 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     [loadAudio, loadImage, loadVideo, pushToast],
   );
 
+  const loadFromYoutube = React.useCallback(
+    async (url: string, opts: LoadYoutubeOptions = {}): Promise<void> => {
+      try {
+        const file = await loadYoutubeAsFile(url, opts);
+        loadFile(file, "audio");
+      } catch (e) {
+        if ((e as Error)?.name === "AbortError") return;
+        const msg = (e as Error)?.message || "Errore caricamento YouTube";
+        pushToast(msg, "error");
+        throw e;
+      }
+    },
+    [loadFile, pushToast],
+  );
+
   // ---- Playback toggles ----
   const togglePlayMedia = React.useCallback((): void => {
     const v = mediaElementRef.current;
@@ -842,6 +864,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       setCanvasRef,
       setStageEl,
       loadFile,
+      loadFromYoutube,
       clearMedia,
       clearAudio,
       togglePlayMedia,
@@ -863,6 +886,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       setCanvasRef,
       setStageEl,
       loadFile,
+      loadFromYoutube,
       clearMedia,
       clearAudio,
       togglePlayMedia,
