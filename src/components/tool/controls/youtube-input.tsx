@@ -6,18 +6,9 @@ import { useDither } from "@/state/dither-context";
 import { isYoutubeUrl } from "@/lib/youtube-loader";
 
 export function YoutubeInput() {
-  const { actions } = useDither();
+  const { actions, meta } = useDither();
   const [url, setUrl] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [progress, setProgress] = React.useState(0);
-  const [label, setLabel] = React.useState("");
-  const abortRef = React.useRef<AbortController | null>(null);
-
-  React.useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-    };
-  }, []);
+  const { youtubeLoading: loading, youtubeProgress: progress, youtubeLabel: label } = meta;
 
   const handleLoad = async () => {
     const value = url.trim();
@@ -26,31 +17,12 @@ export function YoutubeInput() {
       actions.pushToast("Inserisci un URL YouTube valido", "error");
       return;
     }
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-    setLoading(true);
-    setProgress(0);
-    setLabel("Avvio…");
     try {
-      await actions.loadFromYoutube(value, {
-        signal: ctrl.signal,
-        onProgress: (pct, l) => {
-          setProgress(pct);
-          setLabel(l);
-        },
-      });
+      await actions.loadFromYoutube(value);
       setUrl("");
     } catch {
       /* toast già mostrato dal context */
-    } finally {
-      if (abortRef.current === ctrl) abortRef.current = null;
-      setLoading(false);
     }
-  };
-
-  const handleCancel = () => {
-    abortRef.current?.abort();
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -82,7 +54,7 @@ export function YoutubeInput() {
         {loading ? (
           <button
             type="button"
-            onClick={handleCancel}
+            onClick={actions.cancelYoutubeLoad}
             className="h-7 shrink-0 border border-foreground bg-background px-2 text-[10px] uppercase tracking-[0.04em] text-foreground hover:bg-(--hb-rosso) hover:text-background"
           >
             Annulla

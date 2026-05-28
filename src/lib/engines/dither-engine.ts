@@ -134,57 +134,37 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
     const scaleYFactor = 1 + clamp(t?.scaleY ?? 0, -99, 1000) / 100;
     const flipX = t?.flipH ? -1 : 1;
     const flipY = t?.flipV ? -1 : 1;
-    const offX = (clamp(t?.offsetX ?? 0, -100, 100) / 100) * W;
-    const offY = (clamp(t?.offsetY ?? 0, -100, 100) / 100) * H;
+    const tx = (clamp(t?.offsetX ?? 0, -100, 100) / 100) * (W / 2);
+    const ty = (clamp(t?.offsetY ?? 0, -100, 100) / 100) * (H / 2);
 
-    // Zoom: crop the source rect from the center.
-    const zSw = srcW / zoom;
-    const zSh = srcH / zoom;
-    const zSx = (srcW - zSw) / 2;
-    const zSy = (srcH - zSh) / 2;
+    // How the full source maps onto canvas at neutral transform per fit mode:
+    // stretch fills exactly, contain letterboxes (base < canvas), cover overflows (base > canvas).
+    let baseW: number, baseH: number;
+    if (fit === "stretch") {
+      baseW = W;
+      baseH = H;
+    } else if (fit === "contain") {
+      if (srcAR > canvasAR) { baseW = W; baseH = W / srcAR; }
+      else { baseH = H; baseW = H * srcAR; }
+    } else {
+      if (srcAR > canvasAR) { baseH = H; baseW = H * srcAR; }
+      else { baseW = W; baseH = W / srcAR; }
+    }
+
+    const Dw = baseW * zoom * scaleXFactor;
+    const Dh = baseH * zoom * scaleYFactor;
+    const Dx = (W - Dw) / 2 + tx;
+    const Dy = (H - Dh) / 2 + ty;
 
     sampleCtx.save();
-    sampleCtx.translate(offX, offY);
-    sampleCtx.translate(W / 2, H / 2);
-    sampleCtx.scale(scaleXFactor * flipX, scaleYFactor * flipY);
-    sampleCtx.translate(-W / 2, -H / 2);
-
-    if (fit === "stretch") {
-      sampleCtx.drawImage(drawSource, zSx, zSy, zSw, zSh, 0, 0, W, H);
-    } else if (fit === "contain") {
-      let dw: number;
-      let dh: number;
-      let dx: number;
-      let dy: number;
-      if (srcAR > canvasAR) {
-        dw = W;
-        dh = W / srcAR;
-        dx = 0;
-        dy = (H - dh) / 2;
-      } else {
-        dh = H;
-        dw = H * srcAR;
-        dx = (W - dw) / 2;
-        dy = 0;
-      }
-      sampleCtx.drawImage(drawSource, zSx, zSy, zSw, zSh, dx, dy, dw, dh);
-    } else {
-      // cover
-      let sx = zSx;
-      let sy = zSy;
-      let sw = zSw;
-      let sh = zSh;
-      if (srcAR > canvasAR) {
-        const newSw = zSh * canvasAR;
-        sx = zSx + (zSw - newSw) / 2;
-        sw = newSw;
-      } else {
-        const newSh = zSw / canvasAR;
-        sy = zSy + (zSh - newSh) / 2;
-        sh = newSh;
-      }
-      sampleCtx.drawImage(drawSource, sx, sy, sw, sh, 0, 0, W, H);
+    if (flipX < 0 || flipY < 0) {
+      const cx = Dx + Dw / 2;
+      const cy = Dy + Dh / 2;
+      sampleCtx.translate(cx, cy);
+      sampleCtx.scale(flipX, flipY);
+      sampleCtx.translate(-cx, -cy);
     }
+    sampleCtx.drawImage(drawSource, 0, 0, srcW, srcH, Dx, Dy, Dw, Dh);
     sampleCtx.restore();
     try {
       return sampleCtx.getImageData(0, 0, W, H);

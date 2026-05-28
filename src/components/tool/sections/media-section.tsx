@@ -15,13 +15,13 @@ export function MediaSection() {
       {m.kind === "none" ? (
         <Dropzone
           accept={{
-            "image/*": [".jpg", ".jpeg", ".png", ".webp", ".gif"],
+            "image/*": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"],
             "video/*": [".mp4", ".webm", ".mov"],
           }}
           onFile={(f) => actions.loadFile(f, "media")}
           icon={<Upload size={20} />}
           label="Drop image or video"
-          hint="JPG · PNG · WEBP · GIF · MP4 · WEBM"
+          hint="JPG · PNG · WEBP · GIF · SVG · MP4 · WEBM"
         />
       ) : (
         <div className="relative aspect-video overflow-hidden border border-foreground bg-(--hb-black)">

@@ -150,6 +150,7 @@ export const VALID_IMAGE_TYPES = [
   "image/png",
   "image/webp",
   "image/gif",
+  "image/svg+xml",
 ] as const;
 
 export const VALID_VIDEO_TYPES = [

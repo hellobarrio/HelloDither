@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Music, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { ExportMenu } from "./export-menu";
+import { AudioMenu } from "./audio-menu";
 import { useDither } from "@/state/dither-context";
 import { Playbar } from "./playbar";
 
@@ -30,7 +31,7 @@ export function Toolbar({
       </div>
       <div className="flex h-14 items-center gap-2 lg:border-r border-foreground px-3">
         <label className="btn small cursor-pointer">
-          <Upload size={11} /> Upload
+          <Upload size={11} /> Media
           <input
             type="file"
             className="sr-only"
@@ -42,19 +43,7 @@ export function Toolbar({
             }}
           />
         </label>
-        <label className="btn small cursor-pointer">
-          <Music size={11} /> Audio
-          <input
-            type="file"
-            className="sr-only"
-            accept="audio/*,.mp3,.wav"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) actions.loadFile(f, "audio");
-              e.target.value = "";
-            }}
-          />
-        </label>
+        <AudioMenu />
       </div>
       <div className="order-3 flex h-14 min-w-0 flex-1 basis-full items-center border-t border-foreground lg:order-none lg:basis-auto lg:border-t-0">
         <Playbar />

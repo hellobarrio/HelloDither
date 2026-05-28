@@ -14,7 +14,7 @@ export function TransformSection() {
     <Section title="Transform" icon={<Scaling size={13} />}>
       <ValueSlider
         label="Zoom"
-        min={1}
+        min={0.1}
         max={4}
         step={0.05}
         precision={2}

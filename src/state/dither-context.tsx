@@ -26,17 +26,13 @@ import type {
 
 type FileRole = "media" | "audio";
 
-interface LoadYoutubeOptions {
-  onProgress?: (percent: number, label: string) => void;
-  signal?: AbortSignal;
-}
-
 interface DitherActions {
   update: (patch: Partial<DitherState>) => void;
   setCanvasRef: (el: HTMLCanvasElement | null) => void;
   setStageEl: (el: HTMLElement | null) => void;
   loadFile: (file: File, role: FileRole) => void;
-  loadFromYoutube: (url: string, opts?: LoadYoutubeOptions) => Promise<void>;
+  loadFromYoutube: (url: string) => Promise<void>;
+  cancelYoutubeLoad: () => void;
   clearMedia: () => void;
   clearAudio: () => void;
   togglePlayMedia: () => void;
@@ -57,6 +53,9 @@ interface DitherActions {
 interface DitherMeta {
   stageScale: number;
   recording: boolean;
+  youtubeLoading: boolean;
+  youtubeProgress: number;
+  youtubeLabel: string;
 }
 
 export interface DitherContextValue {
@@ -126,7 +125,7 @@ function closeGifFrames(frames: GifFrame[] | null): void {
 
 function isValidImage(file: File): boolean {
   const t = file.type as (typeof VALID_IMAGE_TYPES)[number];
-  return VALID_IMAGE_TYPES.includes(t);
+  return VALID_IMAGE_TYPES.includes(t) || /\.svg$/i.test(file.name);
 }
 function isValidVideo(file: File): boolean {
   const t = file.type as (typeof VALID_VIDEO_TYPES)[number];
@@ -137,6 +136,9 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = React.useState<DitherState>(DEFAULT_STATE);
   const [recording, setRecording] = React.useState(false);
   const [stageScale, setStageScale] = React.useState(1);
+  const [youtubeLoading, setYoutubeLoading] = React.useState(false);
+  const [youtubeProgress, setYoutubeProgress] = React.useState(0);
+  const [youtubeLabel, setYoutubeLabel] = React.useState("");
 
   // ---- Refs (transient — no re-render on change) ----
   const stateRef = React.useRef(state);
@@ -156,6 +158,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const gifFramesRef = React.useRef<GifFrame[] | null>(null);
   const mediaLoadTokenRef = React.useRef(0);
   const audioLoadTokenRef = React.useRef(0);
+  const youtubeAbortRef = React.useRef<AbortController | null>(null);
 
   // Keep stateRef in sync so callbacks see the latest state.
   React.useEffect(() => {
@@ -645,19 +648,45 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   );
 
   const loadFromYoutube = React.useCallback(
-    async (url: string, opts: LoadYoutubeOptions = {}): Promise<void> => {
+    async (url: string): Promise<void> => {
+      youtubeAbortRef.current?.abort();
+      const ctrl = new AbortController();
+      youtubeAbortRef.current = ctrl;
+      setYoutubeLoading(true);
+      setYoutubeProgress(0);
+      setYoutubeLabel("Avvio…");
+      pushToast("Download YouTube avviato — può richiedere qualche secondo");
       try {
-        const file = await loadYoutubeAsFile(url, opts);
+        const file = await loadYoutubeAsFile(url, {
+          signal: ctrl.signal,
+          onProgress: (pct, label) => {
+            if (youtubeAbortRef.current !== ctrl) return;
+            setYoutubeProgress(pct);
+            setYoutubeLabel(label);
+          },
+        });
+        if (ctrl.signal.aborted) return;
         loadFile(file, "audio");
       } catch (e) {
         if ((e as Error)?.name === "AbortError") return;
         const msg = (e as Error)?.message || "Errore caricamento YouTube";
         pushToast(msg, "error");
         throw e;
+      } finally {
+        if (youtubeAbortRef.current === ctrl) {
+          youtubeAbortRef.current = null;
+          setYoutubeLoading(false);
+          setYoutubeProgress(0);
+          setYoutubeLabel("");
+        }
       }
     },
     [loadFile, pushToast],
   );
+
+  const cancelYoutubeLoad = React.useCallback((): void => {
+    youtubeAbortRef.current?.abort();
+  }, []);
 
   // ---- Playback toggles ----
   const togglePlayMedia = React.useCallback((): void => {
@@ -865,6 +894,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       setStageEl,
       loadFile,
       loadFromYoutube,
+      cancelYoutubeLoad,
       clearMedia,
       clearAudio,
       togglePlayMedia,
@@ -887,6 +917,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       setStageEl,
       loadFile,
       loadFromYoutube,
+      cancelYoutubeLoad,
       clearMedia,
       clearAudio,
       togglePlayMedia,
@@ -909,9 +940,23 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     () => ({
       state,
       actions,
-      meta: { stageScale, recording },
+      meta: {
+        stageScale,
+        recording,
+        youtubeLoading,
+        youtubeProgress,
+        youtubeLabel,
+      },
     }),
-    [state, actions, stageScale, recording],
+    [
+      state,
+      actions,
+      stageScale,
+      recording,
+      youtubeLoading,
+      youtubeProgress,
+      youtubeLabel,
+    ],
   );
 
   return <DitherContext value={value}>{children}</DitherContext>;
