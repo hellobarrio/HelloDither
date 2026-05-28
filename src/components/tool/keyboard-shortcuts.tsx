@@ -22,10 +22,14 @@ export function KeyboardShortcuts({
       if (isInputTarget(e.target)) return;
 
       if (matchesMod(e)) {
+        if (e.key.toLowerCase() === "p") {
+          e.preventDefault();
+          actions.exportPNG();
+          return;
+        }
         if (e.key.toLowerCase() === "s") {
           e.preventDefault();
-          if (e.shiftKey) actions.exportSVG();
-          else actions.exportPNG();
+          actions.exportSVG();
           return;
         }
         if (e.key.toLowerCase() === "e") {

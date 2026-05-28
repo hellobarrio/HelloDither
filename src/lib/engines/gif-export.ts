@@ -16,14 +16,47 @@ interface ExportInputs {
 const waitForRaf = (): Promise<void> =>
   new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
-const waitForSeeked = (video: HTMLVideoElement): Promise<void> =>
-  new Promise((resolve) => {
-    const onSeeked = () => {
+const waitForSeeked = (
+  video: HTMLVideoElement,
+  targetTime: number,
+  signal?: AbortSignal,
+): Promise<void> => {
+  if (signal?.aborted) {
+    return Promise.reject(new DOMException("Cancelled", "AbortError"));
+  }
+  if (Math.abs(video.currentTime - targetTime) < 0.001) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    let timeout: number | null = null;
+    const cleanup = () => {
       video.removeEventListener("seeked", onSeeked);
-      resolve();
+      video.removeEventListener("error", onError);
+      signal?.removeEventListener("abort", onAbort);
+      if (timeout !== null) window.clearTimeout(timeout);
     };
+    const finish = (fn: () => void) => {
+      cleanup();
+      fn();
+    };
+    const onSeeked = () => {
+      finish(() => resolve());
+    };
+    const onError = () => {
+      finish(() => reject(new Error("Video seek failed")));
+    };
+    const onAbort = () => {
+      finish(() => reject(new DOMException("Cancelled", "AbortError")));
+    };
+    timeout = window.setTimeout(() => {
+      finish(() => resolve());
+    }, 3000);
     video.addEventListener("seeked", onSeeked);
+    video.addEventListener("error", onError);
+    signal?.addEventListener("abort", onAbort, { once: true });
   });
+};
 
 function downloadGif(bytes: Uint8Array, filename: string): void {
   const blob = new Blob([bytes as BlobPart], { type: "image/gif" });
@@ -81,7 +114,7 @@ export async function exportGIF({
       const t = opts.start + i * dt;
       if (source?.kind === "video") {
         source.el.currentTime = t;
-        await waitForSeeked(source.el);
+        await waitForSeeked(source.el, t, opts.signal);
       }
       // Let the engine pick up the new frame.
       engine.invalidate();

@@ -10,10 +10,10 @@ function Switch({
   ...props
 }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
   return (
-    <SwitchPrimitive.Root
-      data-slot="switch"
-      className={cn(
-        "relative inline-block h-4.5 w-8 shrink-0 cursor-pointer border border-foreground bg-secondary transition-colors outline-none data-[state=checked]:bg-primary disabled:cursor-not-allowed disabled:opacity-50",
+      <SwitchPrimitive.Root
+        data-slot="switch"
+        className={cn(
+        "relative inline-block h-4.5 w-8 shrink-0 cursor-pointer border border-foreground bg-secondary transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=checked]:bg-primary disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}

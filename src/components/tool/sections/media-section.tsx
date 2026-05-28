@@ -24,7 +24,7 @@ export function MediaSection() {
           hint="JPG · PNG · WEBP · GIF · MP4 · WEBM"
         />
       ) : (
-        <div className="media-preview">
+        <div className="relative aspect-video overflow-hidden border border-foreground bg-(--hb-black)">
           {m.kind === "image" ? (
             // Blob URL preview: bypass Next.js image optimizer (it can't fetch blob:).
             <Image
@@ -36,18 +36,24 @@ export function MediaSection() {
               className="w-full h-full object-contain"
             />
           ) : (
-            <video src={m.url} muted loop playsInline />
+            <video
+              src={m.url}
+              muted
+              loop
+              playsInline
+              className="block h-full w-full object-contain"
+            />
           )}
           <button
             type="button"
-            className="clear-btn"
+            className="absolute right-1 top-1 z-[2] inline-flex h-[22px] w-[22px] items-center justify-center border border-foreground bg-background text-foreground hover:bg-(--hb-rosso)"
             onClick={actions.clearMedia}
             title="Remove"
             aria-label="Remove media"
           >
             <X size={12} />
           </button>
-          <div className="meta-overlay">
+          <div className="absolute bottom-1 left-1 bg-black/60 px-1.5 py-[3px] text-[9px] uppercase tracking-[0.04em] text-(--hb-grigio)">
             {m.kind} · {m.width}×{m.height}
           </div>
         </div>

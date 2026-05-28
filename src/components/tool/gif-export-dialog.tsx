@@ -142,9 +142,16 @@ function GifExportDialogInner({ onClose }: GifExportDialogInnerProps) {
         />
 
         {exporting ? (
-          <div className="progress-bar" aria-label="Export progress">
+          <div
+            className="relative h-1 w-full overflow-hidden bg-(--fg-3)"
+            role="progressbar"
+            aria-label="Export progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress * 100)}
+          >
             <div
-              className="fill"
+              className="absolute inset-0 origin-left bg-(--hb-rosso) transition-transform duration-100 ease-linear"
               style={{ transform: `scaleX(${progress})` }}
             />
           </div>

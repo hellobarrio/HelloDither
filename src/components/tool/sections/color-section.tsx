@@ -74,7 +74,7 @@ export function ColorSection() {
             <div className="ctrl-label">
               <span className="name">Preset</span>
             </div>
-            <div className="preset-grid">
+            <div className="grid grid-cols-3 gap-1.5">
               {GRADIENT_PRESETS.map((p) => (
                 <GradientChip
                   key={p.id}

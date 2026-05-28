@@ -90,9 +90,10 @@ async function decodeGifFrames(file: File): Promise<GifFrame[] | null> {
   const Ctor = (globalThis as unknown as { ImageDecoder?: ImageDecoderCtor })
     .ImageDecoder;
   if (!Ctor) return null;
+  let decoder: ImageDecoderLike | null = null;
   try {
     const buf = await file.arrayBuffer();
-    const decoder = new Ctor({ data: buf, type: "image/gif" });
+    decoder = new Ctor({ data: buf, type: "image/gif" });
     await decoder.tracks.ready;
     const count = decoder.tracks.selectedTrack.frameCount;
     if (!count) return null;
@@ -104,11 +105,16 @@ async function decodeGifFrames(file: File): Promise<GifFrame[] | null> {
       frames.push({ bitmap, durationMs });
       image.close?.();
     }
-    decoder.close?.();
     return frames;
   } catch {
     return null;
+  } finally {
+    decoder?.close?.();
   }
+}
+
+function closeGifFrames(frames: GifFrame[] | null): void {
+  frames?.forEach((f) => f.bitmap.close());
 }
 
 function isValidImage(file: File): boolean {
@@ -141,6 +147,8 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const videoListenersRef = React.useRef<Array<() => void>>([]);
   const audioListenersRef = React.useRef<Array<() => void>>([]);
   const gifFramesRef = React.useRef<GifFrame[] | null>(null);
+  const mediaLoadTokenRef = React.useRef(0);
+  const audioLoadTokenRef = React.useRef(0);
 
   // Keep stateRef in sync so callbacks see the latest state.
   React.useEffect(() => {
@@ -239,6 +247,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
 
   // ---- Media cleanup helpers ----
   const clearMediaInternal = React.useCallback((): void => {
+    mediaLoadTokenRef.current += 1;
     const v = mediaElementRef.current;
     videoListenersRef.current.forEach((off) => off());
     videoListenersRef.current = [];
@@ -254,14 +263,13 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     if (mediaUrlRef.current) URL.revokeObjectURL(mediaUrlRef.current);
     mediaElementRef.current = null;
     mediaUrlRef.current = null;
-    if (gifFramesRef.current) {
-      gifFramesRef.current.forEach((f) => f.bitmap.close());
-      gifFramesRef.current = null;
-    }
+    closeGifFrames(gifFramesRef.current);
+    gifFramesRef.current = null;
     engineRef.current?.setMedia(null);
   }, []);
 
   const clearAudioInternal = React.useCallback((): void => {
+    audioLoadTokenRef.current += 1;
     audioListenersRef.current.forEach((off) => off());
     audioListenersRef.current = [];
     if (audioEngineRef.current) audioEngineRef.current.detach();
@@ -270,6 +278,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       try {
         a.pause();
         a.removeAttribute("src");
+        a.load();
       } catch {}
     }
     if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
@@ -314,25 +323,54 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const loadImage = React.useCallback(
     (file: File): void => {
       clearMediaInternal();
+      setState((s) => ({
+        ...s,
+        media: {
+          kind: "none",
+          name: "",
+          width: 0,
+          height: 0,
+          isPlaying: false,
+          currentTime: 0,
+          duration: 0,
+        },
+      }));
+      const token = ++mediaLoadTokenRef.current;
       const url = URL.createObjectURL(file);
+      mediaUrlRef.current = url;
       const img = new Image();
       img.crossOrigin = "anonymous";
       const isGif = file.type === "image/gif" || /\.gif$/i.test(file.name);
       img.onload = async () => {
-        mediaElementRef.current = img;
-        mediaUrlRef.current = url;
+        if (token !== mediaLoadTokenRef.current) {
+          if (mediaUrlRef.current === url) {
+            URL.revokeObjectURL(url);
+            mediaUrlRef.current = null;
+          }
+          return;
+        }
         let frames: GifFrame[] | null = null;
         if (isGif) {
           frames = await decodeGifFrames(file);
+          if (token !== mediaLoadTokenRef.current) {
+            closeGifFrames(frames);
+            if (mediaUrlRef.current === url) {
+              URL.revokeObjectURL(url);
+              mediaUrlRef.current = null;
+            }
+            return;
+          }
           if (frames && frames.length > 1) {
             gifFramesRef.current = frames;
           } else {
+            closeGifFrames(frames);
             frames = null;
             img.style.cssText =
               "position:fixed;top:0;left:0;width:2px;height:2px;z-index:-1;pointer-events:none;";
             document.body.appendChild(img);
           }
         }
+        mediaElementRef.current = img;
         engineRef.current?.setMedia(img, {
           animated: isGif,
           gifFrames: frames,
@@ -356,7 +394,11 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
         );
       };
       img.onerror = () => {
-        URL.revokeObjectURL(url);
+        if (token !== mediaLoadTokenRef.current) return;
+        if (mediaUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          mediaUrlRef.current = null;
+        }
         pushToast("Image failed to load", "error");
       };
       img.src = url;
@@ -368,7 +410,21 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const loadVideo = React.useCallback(
     (file: File): void => {
       clearMediaInternal();
+      setState((s) => ({
+        ...s,
+        media: {
+          kind: "none",
+          name: "",
+          width: 0,
+          height: 0,
+          isPlaying: false,
+          currentTime: 0,
+          duration: 0,
+        },
+      }));
+      const token = ++mediaLoadTokenRef.current;
       const url = URL.createObjectURL(file);
+      mediaUrlRef.current = url;
       const vid = document.createElement("video");
       vid.crossOrigin = "anonymous";
       vid.src = url;
@@ -377,11 +433,14 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       vid.loop = true;
       vid.preload = "auto";
 
-      const offMeta = () => vid.removeEventListener("loadedmetadata", onMeta);
+      const cleanupStartup = () => {
+        vid.removeEventListener("loadedmetadata", onMeta);
+        vid.removeEventListener("error", onError);
+      };
       const onMeta = () => {
-        offMeta();
+        cleanupStartup();
+        if (token !== mediaLoadTokenRef.current) return;
         mediaElementRef.current = vid;
-        mediaUrlRef.current = url;
         engineRef.current?.setMedia(vid);
         setState((s) => ({
           ...s,
@@ -409,10 +468,16 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
         pushToast(`Loaded ${file.name}`);
       };
       vid.addEventListener("loadedmetadata", onMeta);
-      vid.onerror = () => {
-        URL.revokeObjectURL(url);
+      const onError = () => {
+        cleanupStartup();
+        if (token !== mediaLoadTokenRef.current) return;
+        if (mediaUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          mediaUrlRef.current = null;
+        }
         pushToast("Video failed to load", "error");
       };
+      vid.addEventListener("error", onError);
       const onTime = () => {
         setState((s) =>
           s.media.kind === "video"
@@ -443,6 +508,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       vid.addEventListener("play", onPlay);
       vid.addEventListener("pause", onPause);
       videoListenersRef.current = [
+        cleanupStartup,
         () => vid.removeEventListener("timeupdate", onTime),
         () => vid.removeEventListener("play", onPlay),
         () => vid.removeEventListener("pause", onPause),
@@ -455,17 +521,34 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const loadAudio = React.useCallback(
     (file: File): void => {
       clearAudioInternal();
+      setState((s) => ({
+        ...s,
+        audio: {
+          ...s.audio,
+          loaded: false,
+          name: "",
+          isPlaying: false,
+          currentTime: 0,
+          duration: 0,
+        },
+      }));
+      const token = ++audioLoadTokenRef.current;
       const url = URL.createObjectURL(file);
+      audioUrlRef.current = url;
       const audio = new Audio();
       audio.src = url;
       audio.crossOrigin = "anonymous";
       audio.preload = "auto";
       audio.loop = true;
 
-      const onMeta = () => {
+      const cleanupStartup = () => {
         audio.removeEventListener("loadedmetadata", onMeta);
+        audio.removeEventListener("error", onError);
+      };
+      const onMeta = () => {
+        cleanupStartup();
+        if (token !== audioLoadTokenRef.current) return;
         audioElementRef.current = audio;
-        audioUrlRef.current = url;
         if (!audioEngineRef.current) {
           audioEngineRef.current = createAudioEngine();
         }
@@ -489,10 +572,16 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
         pushToast(`Loaded ${file.name}`);
       };
       audio.addEventListener("loadedmetadata", onMeta);
-      audio.onerror = () => {
-        URL.revokeObjectURL(url);
+      const onError = () => {
+        cleanupStartup();
+        if (token !== audioLoadTokenRef.current) return;
+        if (audioUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          audioUrlRef.current = null;
+        }
         pushToast("Audio failed to load", "error");
       };
+      audio.addEventListener("error", onError);
       const onTime = () =>
         setState((s) =>
           s.audio.loaded
@@ -518,6 +607,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       audio.addEventListener("play", onPlay);
       audio.addEventListener("pause", onPause);
       audioListenersRef.current = [
+        cleanupStartup,
         () => audio.removeEventListener("timeupdate", onTime),
         () => audio.removeEventListener("play", onPlay),
         () => audio.removeEventListener("pause", onPause),

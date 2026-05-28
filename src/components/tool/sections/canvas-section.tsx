@@ -57,7 +57,7 @@ export function CanvasSection() {
         </Select>
       </div>
 
-      <div className="row-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <ValueSlider
           label="Width"
           min={64}

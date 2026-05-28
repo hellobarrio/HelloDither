@@ -71,16 +71,12 @@ export const DEFAULT_STATE: DitherState = {
     preset: "sq-1080",
     width: 1080,
     height: 1080,
-    aspectLock: true,
-    fitToMedia: false,
-    background: "#1e1e1c",
     fit: "cover",
   },
   grid: {
     cols: 60,
     rows: 60,
     gap: 1,
-    pixelSize: 14,
     mode: "height",
     minH: 25,
     maxH: 100,
@@ -137,7 +133,6 @@ export const DEFAULT_STATE: DitherState = {
   },
   ui: {
     mode: "basic",
-    collapsed: {},
   },
   transform: {
     zoom: 1,

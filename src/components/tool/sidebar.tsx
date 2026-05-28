@@ -17,7 +17,7 @@ interface SidebarProps {
 
 export function Sidebar({ onShowHelp }: SidebarProps) {
   return (
-    <aside className="app-sidebar">
+    <aside className="app-sidebar flex max-h-[55vh] min-h-0 flex-col overflow-hidden border-t border-foreground bg-background lg:max-h-none lg:border-l lg:border-t-0">
       <ScrollArea className="h-full">
         <MediaSection />
         <CanvasSection />

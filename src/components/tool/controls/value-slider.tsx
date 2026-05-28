@@ -30,6 +30,7 @@ export function ValueSlider({
   unit,
   showInput = true,
 }: ValueSliderProps) {
+  const labelId = React.useId();
   const display = precision > 0 ? value.toFixed(precision) : `${Math.round(value)}`;
 
   const onInputChange = React.useCallback(
@@ -44,7 +45,13 @@ export function ValueSlider({
     <div className="ctrl">
       {(label || showInput) && (
         <div className="ctrl-label">
-          {label ? <span className="name">{label}</span> : <span />}
+          {label ? (
+            <span id={labelId} className="name">
+              {label}
+            </span>
+          ) : (
+            <span />
+          )}
           {showInput ? (
             <span className="inline-flex items-center gap-0.5">
               <input
@@ -73,6 +80,8 @@ export function ValueSlider({
         step={step}
         value={[value]}
         onValueChange={(vs) => onChange(vs[0] ?? value)}
+        aria-labelledby={label ? labelId : undefined}
+        aria-label={label ? undefined : "Value"}
       />
     </div>
   );

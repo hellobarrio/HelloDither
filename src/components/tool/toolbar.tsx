@@ -24,9 +24,11 @@ export function Toolbar({
   const { state, actions } = useDither();
 
   return (
-    <header className="app-toolbar">
-      <div className="tb-section">{logo}</div>
-      <div className="tb-section">
+    <header className="flex min-h-14 flex-wrap items-stretch border-b border-foreground bg-background lg:h-14 lg:flex-nowrap justify-between">
+      <div className="flex h-14 items-center border-r border-foreground px-3">
+        {logo}
+      </div>
+      <div className="flex h-14 items-center gap-2 lg:border-r border-foreground px-3">
         <label className="btn small cursor-pointer">
           <Upload size={11} /> Upload
           <input
@@ -54,10 +56,10 @@ export function Toolbar({
           />
         </label>
       </div>
-      <div className="tb-section flex-1">
+      <div className="order-3 flex h-14 min-w-0 flex-1 basis-full items-center border-t border-foreground lg:order-none lg:basis-auto lg:border-t-0">
         <Playbar />
       </div>
-      <div className="tb-section right w-84.75 justify-between border-r-0! gap-3!">
+      <div className="ml-auto flex h-14 w-full items-center justify-between gap-3 border-t border-foreground px-3 lg:w-[340px] lg:border-l lg:border-t-0">
         <div className="mode-toggle">
           <button
             type="button"

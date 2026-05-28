@@ -41,7 +41,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --radius-sm: 0px;
-  --radius-md: 0px;
+  --radius-lg: 0px;
   --radius-lg: 0px;
   --radius-xl: 0px;
   --radius-2xl: 0px;
@@ -49,28 +49,22 @@
   --radius-4xl: 0px;
 }
 
-@font-face {
-  font-family: "TWK Everett";
-  font-display: swap;
-}
-
 :root {
   /* --- hellobarrio brand tokens --- */
   --hb-black: #1e1e1c;
-  --hb-black-pure: #000000;
   --hb-grigio: #ededed;
   --hb-rosso: #ff4141;
-  --hb-white: #ffffff;
 
   --fg-1: var(--hb-black);
   --fg-2: rgba(30, 30, 28, 0.7);
   --fg-3: rgba(30, 30, 28, 0.45);
 
-  --t-short: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --t-base: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  --t-long: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-
-  --border-hairline: 1px solid var(--fg-1);
+  --t-short:
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* --- Shadcn overrides — square + hellobarrio palette --- */
   --background: #ededed;
@@ -112,8 +106,7 @@
     @apply border-border outline-ring/50;
   }
   html,
-  body,
-  #__next {
+  body {
     height: 100%;
     margin: 0;
   }
@@ -132,121 +125,6 @@
   }
 }
 
-/* ============================================================
-   App layout
-   ============================================================ */
-.app-root {
-  display: grid;
-  grid-template-rows: 56px 1fr;
-  height: 100%;
-  width: 100%;
-}
-
-.app-toolbar {
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid var(--fg-1);
-  background: var(--hb-grigio);
-  height: 56px;
-}
-.app-toolbar .tb-section {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  gap: 8px;
-  padding: 0 16px;
-  border-right: 1px solid var(--fg-1);
-}
-.app-toolbar .tb-section:last-child {
-  border-right: 0;
-}
-.app-toolbar .tb-section.flex-grow {
-  flex: 1;
-  justify-content: center;
-}
-.app-toolbar .tb-section.right {
-  margin-left: auto;
-}
-
-.app-body {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  height: 100%;
-  min-height: 0;
-}
-@media (max-width: 900px) {
-  .app-body {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-  }
-  .app-sidebar {
-    border-left: 0 !important;
-    border-top: 1px solid var(--fg-1);
-    max-height: 55vh;
-  }
-}
-
-/* ============================================================
-   Canvas area
-   ============================================================ */
-.canvas-area {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: var(--hb-grigio);
-  overflow: hidden;
-}
-
-.canvas-stage {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  padding: 32px;
-}
-
-.canvas-wrap {
-  position: relative;
-  background: var(--hb-black);
-  outline: 1px solid var(--fg-1);
-  max-width: 100%;
-  max-height: 100%;
-}
-.canvas-wrap canvas {
-  display: block;
-}
-
-.canvas-status {
-  position: absolute;
-  left: 18px;
-  bottom: 18px;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.status-pill {
-  background: var(--hb-black);
-  color: var(--hb-grigio);
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  padding: 6px 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: max-content;
-}
-.status-pill .led {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--hb-rosso);
-  animation: pulse 1.4s infinite ease-in-out;
-}
 @keyframes pulse {
   0%,
   100% {
@@ -257,57 +135,9 @@
   }
 }
 
-.canvas-floating-toolbar {
-  position: absolute;
-  right: 18px;
-  top: 18px;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-end;
-}
-
-.empty-canvas-cta {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  pointer-events: none;
-  color: var(--fg-2);
-  text-align: center;
-  padding: 32px;
-}
-.empty-canvas-cta .empty-load-text {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--hb-black);
-  font-weight: 500;
-}
-.empty-canvas-cta .sub {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  max-width: 380px;
-  line-height: 1.5;
-}
-
 /* ============================================================
    Playbar
    ============================================================ */
-.playbar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0 18px;
-  height: 54px;
-  background: var(--hb-grigio);
-  flex-wrap: wrap;
-}
 .scrubber {
   flex: 1;
   min-width: 100px;
@@ -344,26 +174,9 @@
   background: var(--hb-black);
   border-color: var(--hb-black);
 }
-.playbar .time {
-  font-variant-numeric: tabular-nums;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--fg-2);
-  min-width: 90px;
-  text-align: right;
-}
-
 /* ============================================================
    Sidebar
    ============================================================ */
-.app-sidebar {
-  border-left: 1px solid var(--fg-1);
-  background: var(--hb-grigio);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
 .app-sidebar [data-radix-scroll-area-viewport] {
   flex: 1;
 }
@@ -602,8 +415,8 @@
 }
 [data-slot="dialog-content"] {
   padding: 24px !important;
-  min-width: 380px;
-  max-width: 480px;
+  min-width: min(380px, calc(100vw - 2rem));
+  max-width: min(480px, calc(100vw - 2rem));
 }
 [data-slot="dialog-overlay"] {
   background: rgba(30, 30, 28, 0.5) !important;
@@ -639,36 +452,10 @@
   color: var(--hb-grigio);
   border-color: var(--hb-grigio);
 }
-.popover-menu .item.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.popover-menu .item.disabled:hover {
-  background: transparent;
-  color: var(--fg-1);
-}
-.popover-menu .item.disabled:hover .kbd {
-  color: var(--fg-2);
-  border-color: var(--fg-3);
-}
 .popover-menu .item .label {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-/* ============================================================
-   Tooltip
-   ============================================================ */
-[data-slot="tooltip-content"] {
-  background: var(--hb-black) !important;
-  color: var(--hb-grigio) !important;
-  border: 1px solid var(--fg-1) !important;
-  border-radius: 0 !important;
-  font-size: 10px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 4px 8px !important;
 }
 
 /* ============================================================
@@ -718,16 +505,6 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
-.btn.primary {
-  background: var(--hb-rosso);
-  border-color: var(--hb-rosso);
-  color: var(--hb-black);
-}
-.btn.primary:hover:not(:disabled) {
-  background: var(--fg-1);
-  border-color: var(--fg-1);
-  color: var(--hb-grigio);
-}
 .btn.dark {
   background: var(--hb-black);
   border-color: var(--hb-black);
@@ -737,12 +514,6 @@
   background: var(--hb-rosso);
   border-color: var(--hb-rosso);
   color: var(--hb-black);
-}
-.btn.ghost {
-  border-color: transparent;
-}
-.btn.ghost:hover {
-  border-color: var(--fg-1);
 }
 .btn.small {
   height: 28px;
@@ -773,11 +544,6 @@
 .icon-btn.small {
   width: 28px;
   height: 28px;
-}
-.icon-btn.primary {
-  background: var(--hb-rosso);
-  border-color: var(--hb-rosso);
-  color: var(--hb-black);
 }
 
 /* ============================================================
@@ -856,90 +622,8 @@
 }
 
 /* ============================================================
-   Media / audio preview cards
-   ============================================================ */
-.media-preview {
-  position: relative;
-  border: 1px solid var(--fg-1);
-  background: var(--hb-black);
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-}
-.media-preview img,
-.media-preview video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-.media-preview .clear-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  background: var(--hb-grigio);
-  border: 1px solid var(--fg-1);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2;
-  color: var(--fg-1);
-}
-.media-preview .clear-btn:hover {
-  background: var(--hb-rosso);
-}
-.media-preview .meta-overlay {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--hb-grigio);
-  background: rgba(0, 0, 0, 0.6);
-  padding: 3px 6px;
-}
-
-.audio-preview {
-  border: 1px solid var(--fg-1);
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--hb-black);
-  color: var(--hb-grigio);
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-.audio-preview .audio-name {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1 1 0;
-  min-width: 0;
-}
-.audio-preview .icon-btn {
-  background: var(--hb-grigio);
-  color: var(--hb-black);
-  border-color: var(--hb-grigio);
-  flex-shrink: 0;
-}
-
-/* ============================================================
    Color field
    ============================================================ */
-.color-chip-row {
-  display: grid;
-  grid-template-columns: 32px 1fr;
-  gap: 8px;
-  align-items: center;
-}
 .color-chip {
   position: relative;
   width: 32px;
@@ -996,11 +680,6 @@
 /* ============================================================
    Gradient presets
    ============================================================ */
-.preset-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
 .preset-chip {
   height: 40px;
   border: 1px solid var(--fg-1);
@@ -1051,30 +730,6 @@
   transition: var(--t-short);
 }
 
-/* ============================================================
-   Utility grids inside sections
-   ============================================================ */
-.row-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.row-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-
-/* Expert-only tag */
-.expert-only-tag {
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  padding: 2px 5px;
-  border: 1px solid var(--fg-3);
-  color: var(--fg-3);
-  margin-left: 6px;
-}
-
 /* Visually hidden helper */
 .sr-only {
   position: absolute;
@@ -1086,22 +741,4 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-/* ============================================================
-   Progress bar (used in GIF export dialog)
-   ============================================================ */
-.progress-bar {
-  width: 100%;
-  height: 4px;
-  background: var(--fg-3);
-  position: relative;
-  overflow: hidden;
-}
-.progress-bar > .fill {
-  position: absolute;
-  inset: 0;
-  background: var(--hb-rosso);
-  transform-origin: left center;
-  transition: transform 0.1s linear;
 }

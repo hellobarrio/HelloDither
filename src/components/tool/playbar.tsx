@@ -27,7 +27,7 @@ export function Playbar() {
   }
 
   return (
-    <div className="playbar w-full">
+    <div className="flex h-[54px] w-full flex-wrap items-center gap-3.5 bg-background px-3">
       <button
         type="button"
         className="icon-btn"
@@ -56,7 +56,9 @@ export function Playbar() {
           <div className="scrubber-track" />
         </div>
       )}
-      <div className="time">{timeDisplay}</div>
+      <div className="min-w-[90px] text-right text-[10px] uppercase tracking-[0.06em] text-(--fg-2) tabular-nums">
+        {timeDisplay}
+      </div>
     </div>
   );
 }

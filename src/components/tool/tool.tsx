@@ -21,7 +21,7 @@ export function Tool({ logo, emptyHero }: ToolProps) {
 
   return (
     <DitherProvider>
-      <div className="app-root">
+      <div className="grid h-dvh w-full grid-rows-[auto_minmax(0,1fr)]">
         <Toolbar
           logo={logo}
           gifOpen={gifOpen}
@@ -29,8 +29,8 @@ export function Tool({ logo, emptyHero }: ToolProps) {
           popoverOpen={popoverOpen}
           setPopoverOpen={setPopoverOpen}
         />
-        <div className="app-body">
-          <div className="canvas-area">
+        <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,1fr)_340px] lg:grid-rows-1">
+          <div className="relative flex min-h-0 flex-col overflow-hidden bg-background">
             <CanvasStage emptyHero={emptyHero} />
           </div>
           <Sidebar onShowHelp={() => setHelpOpen(true)} />

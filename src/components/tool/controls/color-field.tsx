@@ -23,7 +23,7 @@ export function ColorField({ label, value, onChange, ariaLabel }: ColorFieldProp
           <span className="name">{label}</span>
         </div>
       ) : null}
-      <div className="color-chip-row">
+      <div className="grid grid-cols-[32px_1fr] items-center gap-2">
         <Popover>
           <PopoverTrigger asChild>
             <button

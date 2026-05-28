@@ -7,9 +7,6 @@ export interface CanvasSettings {
   preset: string;
   width: number;
   height: number;
-  aspectLock: boolean;
-  fitToMedia: boolean;
-  background: string;
   fit: CanvasFit;
 }
 
@@ -21,7 +18,6 @@ export interface GridSettings {
   cols: number;
   rows: number;
   gap: number;
-  pixelSize: number;
   mode: DeformMode;
   minH: number;
   maxH: number;
@@ -113,7 +109,6 @@ export type UIMode = "basic" | "expert";
 
 export interface UISettings {
   mode: UIMode;
-  collapsed: Record<string, boolean>;
 }
 
 export interface TransformSettings {

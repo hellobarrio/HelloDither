@@ -34,6 +34,7 @@ export function Segmented<T extends string>({
         type="single"
         className="segmented"
         value={value}
+        aria-label={label}
         onValueChange={(v) => {
           // Radix returns "" when the active item is clicked again. Keep current.
           if (v && v !== value) onChange(v as T);

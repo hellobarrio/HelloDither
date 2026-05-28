@@ -37,19 +37,21 @@ export function AudioSection() {
           hint="MP3 · WAV"
         />
       ) : (
-        <div className="audio-preview">
+        <div className="flex max-w-full min-w-0 items-center gap-2.5 overflow-hidden border border-foreground bg-(--hb-black) px-3 py-2.5 text-(--hb-grigio)">
           <button
             type="button"
-            className="icon-btn small"
+            className="icon-btn small shrink-0 !border-[var(--hb-grigio)] !bg-background !text-[var(--hb-black)]"
             onClick={actions.togglePlayAudio}
             aria-label={a.isPlaying ? "Pause audio" : "Play audio"}
           >
             {a.isPlaying ? <Pause size={10} /> : <Play size={10} />}
           </button>
-          <span className="audio-name">{a.name}</span>
+          <span className="min-w-0 flex-1 truncate text-[10px] uppercase tracking-[0.04em]">
+            {a.name}
+          </span>
           <button
             type="button"
-            className="icon-btn small"
+            className="icon-btn small shrink-0 !border-[var(--hb-grigio)] !bg-background !text-[var(--hb-black)]"
             onClick={actions.clearAudio}
             aria-label="Clear audio"
           >

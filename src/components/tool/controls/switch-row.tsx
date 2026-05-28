@@ -10,12 +10,21 @@ interface SwitchRowProps {
 }
 
 export function SwitchRow({ label, checked, onCheckedChange }: SwitchRowProps) {
+  const labelId = React.useId();
+
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[10px] uppercase tracking-[0.06em] text-(--fg-2)">
+      <span
+        id={labelId}
+        className="text-[10px] uppercase tracking-[0.06em] text-(--fg-2)"
+      >
         {label}
       </span>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        aria-labelledby={labelId}
+      />
     </div>
   );
 }
