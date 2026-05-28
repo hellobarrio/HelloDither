@@ -118,6 +118,11 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
       sampleCanvas.height = H;
     }
     sampleCtx.clearRect(0, 0, W, H);
+    // Composite transparent source pixels (e.g. PNGs without background)
+    // against the canvas background color so luminance sampling reflects
+    // what the user actually sees on stage.
+    sampleCtx.fillStyle = state.color.bg;
+    sampleCtx.fillRect(0, 0, W, H);
 
     const fit = state.canvas.fit;
     const canvasAR = canvas.width / canvas.height;

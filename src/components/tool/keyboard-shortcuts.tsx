@@ -22,22 +22,22 @@ export function KeyboardShortcuts({
       if (isInputTarget(e.target)) return;
 
       if (matchesMod(e)) {
-        if (e.key.toLowerCase() === "p") {
+        if (e.shiftKey && e.key.toLowerCase() === "p") {
           e.preventDefault();
           actions.exportPNG();
           return;
         }
-        if (e.key.toLowerCase() === "s") {
+        if (e.shiftKey && e.key.toLowerCase() === "s") {
           e.preventDefault();
           actions.exportSVG();
           return;
         }
-        if (e.key.toLowerCase() === "e") {
+        if (!e.shiftKey && e.key.toLowerCase() === "e") {
           e.preventDefault();
           onOpenExportMenu();
           return;
         }
-        if (e.key.toLowerCase() === "g") {
+        if (e.shiftKey && e.key.toLowerCase() === "g") {
           e.preventDefault();
           onOpenGifDialog();
           return;

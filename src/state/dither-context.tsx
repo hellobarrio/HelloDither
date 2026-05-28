@@ -729,9 +729,22 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   }, [update, pushToast]);
 
   const resetGrid = React.useCallback((): void => {
+    const currentAudio = stateRef.current.audio;
     update({
+      canvas: { ...DEFAULT_STATE.canvas },
       grid: { ...DEFAULT_STATE.grid },
+      color: { ...DEFAULT_STATE.color },
       transform: { ...DEFAULT_STATE.transform },
+      ui: { ...DEFAULT_STATE.ui },
+      audio: {
+        ...currentAudio,
+        sensitivity: DEFAULT_STATE.audio.sensitivity,
+        smoothing: DEFAULT_STATE.audio.smoothing,
+        band: DEFAULT_STATE.audio.band,
+        influence: DEFAULT_STATE.audio.influence,
+        mix: DEFAULT_STATE.audio.mix,
+        syncWithVideo: DEFAULT_STATE.audio.syncWithVideo,
+      },
     });
     pushToast("Reset settings to default values");
   }, [update, pushToast]);

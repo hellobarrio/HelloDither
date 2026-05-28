@@ -14,14 +14,14 @@ const mod = isMac ? "⌘" : "Ctrl";
 
 export const SHORTCUTS = {
   playPause: { id: "play-pause", label: "Play / Pause", hint: "Space" },
-  exportPng: { id: "export-png", label: "Export PNG", hint: `${mod} P` },
+  exportPng: { id: "export-png", label: "Export PNG", hint: `${mod} ⇧ P` },
   exportSvg: {
     id: "export-svg",
     label: "Export SVG",
-    hint: `${mod} S`,
+    hint: `${mod} ⇧ S`,
   },
   exportMenu: { id: "export-menu", label: "Export menu", hint: `${mod} E` },
-  exportGif: { id: "export-gif", label: "Export GIF…", hint: `${mod} G` },
+  exportGif: { id: "export-gif", label: "Export GIF…", hint: `${mod} ⇧ G` },
   fitToMedia: { id: "fit-to-media", label: "Fit to media", hint: "F" },
   resetGrid: { id: "reset-grid", label: "Reset grid & transform", hint: "R" },
   toggleBasic: { id: "mode-basic", label: "Basic mode", hint: "B" },
