@@ -33,7 +33,7 @@ export function Tool({ logo, emptyHero }: ToolProps) {
           <div className="canvas-area">
             <CanvasStage emptyHero={emptyHero} />
           </div>
-          <Sidebar />
+          <Sidebar onShowHelp={() => setHelpOpen(true)} />
         </div>
       </div>
       <KeyboardShortcuts

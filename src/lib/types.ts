@@ -116,6 +116,16 @@ export interface UISettings {
   collapsed: Record<string, boolean>;
 }
 
+export interface TransformSettings {
+  zoom: number;
+  flipH: boolean;
+  flipV: boolean;
+  scaleX: number;
+  scaleY: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface DitherState {
   canvas: CanvasSettings;
   grid: GridSettings;
@@ -123,6 +133,7 @@ export interface DitherState {
   media: MediaState;
   audio: AudioSettings;
   ui: UISettings;
+  transform: TransformSettings;
 }
 
 export interface GradientPreset {

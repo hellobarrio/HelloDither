@@ -68,9 +68,7 @@ export function useDither(): DitherContextValue {
 
 function isValidAudio(file: File): boolean {
   const t = file.type as (typeof VALID_AUDIO_TYPES)[number];
-  return (
-    VALID_AUDIO_TYPES.includes(t) || /\.(mp3|wav)$/i.test(file.name)
-  );
+  return VALID_AUDIO_TYPES.includes(t) || /\.(mp3|wav)$/i.test(file.name);
 }
 
 interface DecodedFrameLike {
@@ -82,7 +80,10 @@ interface ImageDecoderLike {
   close?: () => void;
 }
 interface ImageDecoderCtor {
-  new (init: { data: ArrayBuffer | ReadableStream; type: string }): ImageDecoderLike;
+  new (init: {
+    data: ArrayBuffer | ReadableStream;
+    type: string;
+  }): ImageDecoderLike;
 }
 
 async function decodeGifFrames(file: File): Promise<GifFrame[] | null> {
@@ -130,7 +131,9 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const stageRef = React.useRef<HTMLElement | null>(null);
   const engineRef = React.useRef<DitherEngine | null>(null);
   const audioEngineRef = React.useRef<AudioEngine | null>(null);
-  const mediaElementRef = React.useRef<HTMLImageElement | HTMLVideoElement | null>(null);
+  const mediaElementRef = React.useRef<
+    HTMLImageElement | HTMLVideoElement | null
+  >(null);
   const mediaUrlRef = React.useRef<string | null>(null);
   const audioElementRef = React.useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = React.useRef<string | null>(null);
@@ -159,25 +162,28 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ---- Canvas/stage ref setters ----
-  const setCanvasRef = React.useCallback((el: HTMLCanvasElement | null): void => {
-    canvasRef.current = el;
-    if (!el) {
-      if (engineRef.current) {
-        engineRef.current.destroy();
-        engineRef.current = null;
+  const setCanvasRef = React.useCallback(
+    (el: HTMLCanvasElement | null): void => {
+      canvasRef.current = el;
+      if (!el) {
+        if (engineRef.current) {
+          engineRef.current.destroy();
+          engineRef.current = null;
+        }
+        return;
       }
-      return;
-    }
-    if (engineRef.current) return;
-    const engine = createDitherEngine(el);
-    engineRef.current = engine;
-    engine.setSettings(stateRef.current);
-    engine.resizeCanvasToTarget(
-      stateRef.current.canvas.width,
-      stateRef.current.canvas.height,
-    );
-    engine.start();
-  }, []);
+      if (engineRef.current) return;
+      const engine = createDitherEngine(el);
+      engineRef.current = engine;
+      engine.setSettings(stateRef.current);
+      engine.resizeCanvasToTarget(
+        stateRef.current.canvas.width,
+        stateRef.current.canvas.height,
+      );
+      engine.start();
+    },
+    [],
+  );
 
   const setStageEl = React.useCallback((el: HTMLElement | null): void => {
     stageRef.current = el;
@@ -223,7 +229,11 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     const pad = 64;
     const sw = rect.width - pad;
     const sh = rect.height - pad;
-    const scale = Math.min(sw / state.canvas.width, sh / state.canvas.height, 1);
+    const scale = Math.min(
+      sw / state.canvas.width,
+      sh / state.canvas.height,
+      1,
+    );
     setStageScale(Math.max(0.05, scale));
   }, [state.canvas.width, state.canvas.height]);
 
@@ -307,8 +317,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       const url = URL.createObjectURL(file);
       const img = new Image();
       img.crossOrigin = "anonymous";
-      const isGif =
-        file.type === "image/gif" || /\.gif$/i.test(file.name);
+      const isGif = file.type === "image/gif" || /\.gif$/i.test(file.name);
       img.onload = async () => {
         mediaElementRef.current = img;
         mediaUrlRef.current = url;
@@ -342,7 +351,9 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
             animated: isGif,
           },
         }));
-        pushToast(isGif ? `Loaded ${file.name} (animated)` : `Loaded ${file.name}`);
+        pushToast(
+          isGif ? `Loaded ${file.name} (animated)` : `Loaded ${file.name}`,
+        );
       };
       img.onerror = () => {
         URL.revokeObjectURL(url);
@@ -385,7 +396,8 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
             url,
           },
         }));
-        vid.play()
+        vid
+          .play()
           .then(() => {
             setState((s) =>
               s.media.kind === "video"
@@ -517,7 +529,10 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const loadFile = React.useCallback(
     (file: File, role: FileRole): void => {
       if (file.size > MAX_BYTES) {
-        pushToast(`File too large (${(file.size / 1e6).toFixed(1)} MB)`, "error");
+        pushToast(
+          `File too large (${(file.size / 1e6).toFixed(1)} MB)`,
+          "error",
+        );
         return;
       }
       if (role === "media") {
@@ -613,14 +628,22 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       H = Math.round(H * sc);
     }
     update({
-      canvas: { ...stateRef.current.canvas, preset: "custom", width: W, height: H },
+      canvas: {
+        ...stateRef.current.canvas,
+        preset: "custom",
+        width: W,
+        height: H,
+      },
     });
     pushToast(`Canvas set to ${W}×${H}`);
   }, [update, pushToast]);
 
   const resetGrid = React.useCallback((): void => {
-    update({ grid: { ...DEFAULT_STATE.grid } });
-    pushToast("Grid reset to defaults");
+    update({
+      grid: { ...DEFAULT_STATE.grid },
+      transform: { ...DEFAULT_STATE.transform },
+    });
+    pushToast("Reset settings to default values");
   }, [update, pushToast]);
 
   const setMode = React.useCallback(

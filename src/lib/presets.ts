@@ -139,6 +139,15 @@ export const DEFAULT_STATE: DitherState = {
     mode: "basic",
     collapsed: {},
   },
+  transform: {
+    zoom: 1,
+    flipH: false,
+    flipV: false,
+    scaleX: 0,
+    scaleY: 0,
+    offsetX: 0,
+    offsetY: 0,
+  },
 } satisfies DitherState;
 
 export const VALID_IMAGE_TYPES = [

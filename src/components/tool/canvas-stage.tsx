@@ -94,8 +94,8 @@ export function CanvasStage({ emptyHero }: CanvasStageProps) {
           type="button"
           className="icon-btn small"
           onClick={actions.resetGrid}
-          title="Reset grid to defaults"
-          aria-label="Reset grid"
+          title="Reset grid & transform"
+          aria-label="Reset grid & transform"
         >
           <RotateCcw size={11} />
         </button>

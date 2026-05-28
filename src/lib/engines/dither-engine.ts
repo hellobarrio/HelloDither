@@ -123,8 +123,29 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
     const canvasAR = canvas.width / canvas.height;
     const srcAR = srcW / srcH;
 
+    const t = state.transform;
+    const zoom = Math.max(0.1, t?.zoom ?? 1);
+    const scaleXFactor = 1 + clamp(t?.scaleX ?? 0, -99, 1000) / 100;
+    const scaleYFactor = 1 + clamp(t?.scaleY ?? 0, -99, 1000) / 100;
+    const flipX = t?.flipH ? -1 : 1;
+    const flipY = t?.flipV ? -1 : 1;
+    const offX = (clamp(t?.offsetX ?? 0, -100, 100) / 100) * W;
+    const offY = (clamp(t?.offsetY ?? 0, -100, 100) / 100) * H;
+
+    // Zoom: crop the source rect from the center.
+    const zSw = srcW / zoom;
+    const zSh = srcH / zoom;
+    const zSx = (srcW - zSw) / 2;
+    const zSy = (srcH - zSh) / 2;
+
+    sampleCtx.save();
+    sampleCtx.translate(offX, offY);
+    sampleCtx.translate(W / 2, H / 2);
+    sampleCtx.scale(scaleXFactor * flipX, scaleYFactor * flipY);
+    sampleCtx.translate(-W / 2, -H / 2);
+
     if (fit === "stretch") {
-      sampleCtx.drawImage(drawSource, 0, 0, srcW, srcH, 0, 0, W, H);
+      sampleCtx.drawImage(drawSource, zSx, zSy, zSw, zSh, 0, 0, W, H);
     } else if (fit === "contain") {
       let dw: number;
       let dh: number;
@@ -141,22 +162,25 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
         dx = (W - dw) / 2;
         dy = 0;
       }
-      sampleCtx.drawImage(drawSource, 0, 0, srcW, srcH, dx, dy, dw, dh);
+      sampleCtx.drawImage(drawSource, zSx, zSy, zSw, zSh, dx, dy, dw, dh);
     } else {
       // cover
-      let sx = 0;
-      let sy = 0;
-      let sw = srcW;
-      let sh = srcH;
+      let sx = zSx;
+      let sy = zSy;
+      let sw = zSw;
+      let sh = zSh;
       if (srcAR > canvasAR) {
-        sw = srcH * canvasAR;
-        sx = (srcW - sw) / 2;
+        const newSw = zSh * canvasAR;
+        sx = zSx + (zSw - newSw) / 2;
+        sw = newSw;
       } else {
-        sh = srcW / canvasAR;
-        sy = (srcH - sh) / 2;
+        const newSh = zSw / canvasAR;
+        sy = zSy + (zSh - newSh) / 2;
+        sh = newSh;
       }
       sampleCtx.drawImage(drawSource, sx, sy, sw, sh, 0, 0, W, H);
     }
+    sampleCtx.restore();
     try {
       return sampleCtx.getImageData(0, 0, W, H);
     } catch {

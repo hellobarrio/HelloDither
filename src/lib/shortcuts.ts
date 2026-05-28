@@ -23,7 +23,7 @@ export const SHORTCUTS = {
   exportMenu: { id: "export-menu", label: "Export menu", hint: `${mod} E` },
   exportGif: { id: "export-gif", label: "Export GIF…", hint: `${mod} G` },
   fitToMedia: { id: "fit-to-media", label: "Fit to media", hint: "F" },
-  resetGrid: { id: "reset-grid", label: "Reset grid", hint: "R" },
+  resetGrid: { id: "reset-grid", label: "Reset grid & transform", hint: "R" },
   toggleBasic: { id: "mode-basic", label: "Basic mode", hint: "B" },
   toggleExpert: { id: "mode-expert", label: "Expert mode", hint: "E" },
   help: { id: "help", label: "Show shortcuts", hint: "?" },

@@ -4,7 +4,7 @@ import * as React from "react";
 import { Switch } from "@/components/ui/switch";
 
 interface SwitchRowProps {
-  label: string;
+  label: React.ReactNode;
   checked: boolean;
   onCheckedChange: (v: boolean) => void;
 }

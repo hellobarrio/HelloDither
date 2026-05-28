@@ -46,18 +46,25 @@ export function ValueSlider({
         <div className="ctrl-label">
           {label ? <span className="name">{label}</span> : <span />}
           {showInput ? (
-            <input
-              type="number"
-              className="value-input"
-              min={min}
-              max={max}
-              step={step}
-              value={display}
-              onChange={onInputChange}
-              aria-label={label ? `${label} value` : "value"}
-            />
+            <span className="inline-flex items-center gap-0.5">
+              <input
+                type="number"
+                className="value-input"
+                min={min}
+                max={max}
+                step={step}
+                value={display}
+                onChange={onInputChange}
+                aria-label={label ? `${label} value` : "value"}
+              />
+              <span
+                aria-hidden={!unit}
+                className="text-[10px] text-foreground/45 inline-block min-w-3 text-left"
+              >
+                {unit ?? ""}
+              </span>
+            </span>
           ) : null}
-          {unit ? <span className="text-[10px] text-foreground/45">{unit}</span> : null}
         </div>
       )}
       <Slider
