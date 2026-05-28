@@ -84,11 +84,10 @@ export function CanvasSection() {
         />
       </div>
 
-      <div style={{ display: "flex", gap: 8 }}>
+      <div className="flex gap-2">
         <button
           type="button"
-          className="btn small"
-          style={{ flex: 1 }}
+          className="btn small flex-1"
           onClick={actions.fitToMedia}
           disabled={state.media.kind === "none"}
         >

@@ -18,6 +18,7 @@ import type {
   DitherEngine,
   DitherState,
   GifExportOptions,
+  GifFrame,
   RecordingHandle,
   ToastKind,
 } from "@/lib/types";
@@ -71,6 +72,44 @@ function isValidAudio(file: File): boolean {
     VALID_AUDIO_TYPES.includes(t) || /\.(mp3|wav)$/i.test(file.name)
   );
 }
+
+interface DecodedFrameLike {
+  image: { duration?: number | null; close?: () => void } & CanvasImageSource;
+}
+interface ImageDecoderLike {
+  tracks: { ready: Promise<void>; selectedTrack: { frameCount: number } };
+  decode: (init: { frameIndex: number }) => Promise<DecodedFrameLike>;
+  close?: () => void;
+}
+interface ImageDecoderCtor {
+  new (init: { data: ArrayBuffer | ReadableStream; type: string }): ImageDecoderLike;
+}
+
+async function decodeGifFrames(file: File): Promise<GifFrame[] | null> {
+  const Ctor = (globalThis as unknown as { ImageDecoder?: ImageDecoderCtor })
+    .ImageDecoder;
+  if (!Ctor) return null;
+  try {
+    const buf = await file.arrayBuffer();
+    const decoder = new Ctor({ data: buf, type: "image/gif" });
+    await decoder.tracks.ready;
+    const count = decoder.tracks.selectedTrack.frameCount;
+    if (!count) return null;
+    const frames: GifFrame[] = [];
+    for (let i = 0; i < count; i++) {
+      const { image } = await decoder.decode({ frameIndex: i });
+      const bitmap = await createImageBitmap(image);
+      const durationMs = image.duration ? image.duration / 1000 : 100;
+      frames.push({ bitmap, durationMs });
+      image.close?.();
+    }
+    decoder.close?.();
+    return frames;
+  } catch {
+    return null;
+  }
+}
+
 function isValidImage(file: File): boolean {
   const t = file.type as (typeof VALID_IMAGE_TYPES)[number];
   return VALID_IMAGE_TYPES.includes(t);
@@ -98,6 +137,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
   const recorderRef = React.useRef<RecordingHandle | null>(null);
   const videoListenersRef = React.useRef<Array<() => void>>([]);
   const audioListenersRef = React.useRef<Array<() => void>>([]);
+  const gifFramesRef = React.useRef<GifFrame[] | null>(null);
 
   // Keep stateRef in sync so callbacks see the latest state.
   React.useEffect(() => {
@@ -204,6 +244,10 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     if (mediaUrlRef.current) URL.revokeObjectURL(mediaUrlRef.current);
     mediaElementRef.current = null;
     mediaUrlRef.current = null;
+    if (gifFramesRef.current) {
+      gifFramesRef.current.forEach((f) => f.bitmap.close());
+      gifFramesRef.current = null;
+    }
     engineRef.current?.setMedia(null);
   }, []);
 
@@ -221,6 +265,7 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
     audioElementRef.current = null;
     audioUrlRef.current = null;
+    engineRef.current?.setAudioActive(false);
     engineRef.current?.setAudio(null);
   }, []);
 
@@ -264,15 +309,25 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
       img.crossOrigin = "anonymous";
       const isGif =
         file.type === "image/gif" || /\.gif$/i.test(file.name);
-      img.onload = () => {
-        if (isGif) {
-          img.style.cssText =
-            "position:fixed;top:0;left:0;width:2px;height:2px;z-index:-1;pointer-events:none;";
-          document.body.appendChild(img);
-        }
+      img.onload = async () => {
         mediaElementRef.current = img;
         mediaUrlRef.current = url;
-        engineRef.current?.setMedia(img, { animated: isGif });
+        let frames: GifFrame[] | null = null;
+        if (isGif) {
+          frames = await decodeGifFrames(file);
+          if (frames && frames.length > 1) {
+            gifFramesRef.current = frames;
+          } else {
+            frames = null;
+            img.style.cssText =
+              "position:fixed;top:0;left:0;width:2px;height:2px;z-index:-1;pointer-events:none;";
+            document.body.appendChild(img);
+          }
+        }
+        engineRef.current?.setMedia(img, {
+          animated: isGif,
+          gifFrames: frames,
+        });
         setState((s) => ({
           ...s,
           media: {
@@ -439,10 +494,14 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
               }
             : s,
         );
-      const onPlay = () =>
+      const onPlay = () => {
+        engineRef.current?.setAudioActive(true);
         setState((s) => ({ ...s, audio: { ...s.audio, isPlaying: true } }));
-      const onPause = () =>
+      };
+      const onPause = () => {
+        engineRef.current?.setAudioActive(false);
         setState((s) => ({ ...s, audio: { ...s.audio, isPlaying: false } }));
+      };
       audio.addEventListener("timeupdate", onTime);
       audio.addEventListener("play", onPlay);
       audio.addEventListener("pause", onPause);
@@ -481,16 +540,26 @@ export function DitherProvider({ children }: { children: React.ReactNode }) {
     if (vid.paused) void vid.play().catch(() => {});
     else vid.pause();
     if (stateRef.current.audio.syncWithVideo && audioElementRef.current) {
-      if (vid.paused) audioElementRef.current.pause();
-      else void audioElementRef.current.play().catch(() => {});
+      if (vid.paused) {
+        engineRef.current?.setAudioActive(false);
+        audioElementRef.current.pause();
+      } else {
+        engineRef.current?.setAudioActive(true);
+        void audioElementRef.current.play().catch(() => {});
+      }
     }
   }, []);
 
   const togglePlayAudio = React.useCallback((): void => {
     const a = audioElementRef.current;
     if (!a) return;
-    if (a.paused) void a.play().catch(() => {});
-    else a.pause();
+    if (a.paused) {
+      engineRef.current?.setAudioActive(true);
+      void a.play().catch(() => {});
+    } else {
+      engineRef.current?.setAudioActive(false);
+      a.pause();
+    }
     if (
       stateRef.current.audio.syncWithVideo &&
       mediaElementRef.current?.tagName === "VIDEO"

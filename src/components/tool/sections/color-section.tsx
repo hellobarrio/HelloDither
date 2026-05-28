@@ -8,7 +8,7 @@ import { Segmented } from "../controls/segmented";
 import { ColorField } from "../controls/color-field";
 import { GradientChip } from "../controls/gradient-chip";
 import { CustomStopsEditor } from "../controls/custom-stops-editor";
-import { Switch } from "@/components/ui/switch";
+import { SwitchRow } from "../controls/switch-row";
 import { GRADIENT_PRESETS } from "@/lib/presets";
 import { useDither } from "@/state/dither-context";
 import type { GradientMap, GradientType } from "@/lib/types";
@@ -21,32 +21,6 @@ const MAP_OPTIONS: readonly { value: GradientMap; label: string }[] = [
   { value: "luminance", label: "Luminance" },
   { value: "position", label: "Position" },
 ];
-
-function GradientToggleRow({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <span
-        style={{
-          textTransform: "uppercase",
-          fontSize: 10,
-          letterSpacing: "0.06em",
-          color: "var(--fg-2)",
-        }}
-      >
-        {label}
-      </span>
-      <Switch checked={value} onCheckedChange={onChange} />
-    </div>
-  );
-}
 
 export function ColorSection() {
   const { state, actions } = useDither();
@@ -65,10 +39,10 @@ export function ColorSection() {
         onChange={(v) => actions.update({ color: { ...c, fg: v } })}
       />
 
-      <GradientToggleRow
+      <SwitchRow
         label="Gradient"
-        value={c.useGradient}
-        onChange={(v) => actions.update({ color: { ...c, useGradient: v } })}
+        checked={c.useGradient}
+        onCheckedChange={(v) => actions.update({ color: { ...c, useGradient: v } })}
       />
 
       {c.useGradient ? (

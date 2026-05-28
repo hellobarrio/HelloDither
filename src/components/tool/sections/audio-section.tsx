@@ -6,7 +6,7 @@ import { Section } from "./section";
 import { Dropzone } from "../controls/dropzone";
 import { ValueSlider } from "../controls/value-slider";
 import { Segmented } from "../controls/segmented";
-import { Switch } from "@/components/ui/switch";
+import { SwitchRow } from "../controls/switch-row";
 import { useDither } from "@/state/dither-context";
 import type { AudioBand, AudioMix } from "@/lib/types";
 
@@ -100,24 +100,13 @@ export function AudioSection() {
       />
 
       {state.media.kind === "video" ? (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span
-            style={{
-              textTransform: "uppercase",
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              color: "var(--fg-2)",
-            }}
-          >
-            Sync with video
-          </span>
-          <Switch
-            checked={a.syncWithVideo}
-            onCheckedChange={(v) =>
-              actions.update({ audio: { ...a, syncWithVideo: v } })
-            }
-          />
-        </div>
+        <SwitchRow
+          label="Sync with video"
+          checked={a.syncWithVideo}
+          onCheckedChange={(v) =>
+            actions.update({ audio: { ...a, syncWithVideo: v } })
+          }
+        />
       ) : null}
     </Section>
   );

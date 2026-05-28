@@ -367,6 +367,13 @@
 .app-sidebar [data-radix-scroll-area-viewport] {
   flex: 1;
 }
+/* Radix ScrollArea wraps children in a display:table div which prevents
+   ellipsis truncation. Force block layout so flex children with
+   min-width:0 can shrink and clip. */
+.app-sidebar [data-radix-scroll-area-viewport] > div {
+  display: block !important;
+  min-width: 0 !important;
+}
 
 /* ============================================================
    Section (collapsible)
@@ -480,42 +487,7 @@
   background: var(--hb-rosso) !important;
 }
 
-/* ============================================================
-   Switch — restyle shadcn
-   ============================================================ */
-[data-slot="switch"] {
-  position: relative;
-  width: 32px !important;
-  height: 18px !important;
-  border: 1px solid var(--fg-1) !important;
-  background: var(--hb-grigio) !important;
-  border-radius: 0 !important;
-  transition: background 0.2s;
-  padding: 0 !important;
-  display: inline-block !important;
-  flex-shrink: 0;
-}
-[data-slot="switch"][data-state="checked"] {
-  background: var(--hb-rosso) !important;
-}
-[data-slot="switch-thumb"] {
-  position: absolute !important;
-  top: 1px !important;
-  left: 1px !important;
-  width: 14px !important;
-  height: 14px !important;
-  background: var(--fg-1) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  transform: none !important;
-  transition:
-    left 0.2s,
-    background 0.2s;
-}
-[data-slot="switch"][data-state="checked"] [data-slot="switch-thumb"] {
-  left: 15px !important;
-  background: var(--hb-black) !important;
-}
+/* Switch is fully Tailwind-styled in src/components/ui/switch.tsx */
 
 /* ============================================================
    Toggle group (segmented)
@@ -1056,6 +1028,7 @@
   justify-content: center;
   white-space: nowrap;
   text-transform: none;
+  transition: var(--t-short);
 }
 
 /* ============================================================

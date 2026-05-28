@@ -35,21 +35,11 @@ export function ShortcutsHelpDialog({ open, onOpenChange }: ShortcutsHelpDialogP
         <DialogHeader>
           <DialogTitle>Keyboard shortcuts</DialogTitle>
         </DialogHeader>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 14 }}>
+        <div className="mt-3.5 flex flex-col gap-1.5">
           {ROWS.map((s) => (
             <div
               key={s.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "6px 0",
-                borderBottom: "1px solid var(--fg-3)",
-                fontSize: 11,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "var(--fg-1)",
-              }}
+              className="flex items-center justify-between border-b border-(--fg-3) py-1.5 text-[11px] uppercase tracking-[0.06em] text-foreground"
             >
               <span>{s.label}</span>
               <Kbd>{s.hint}</Kbd>

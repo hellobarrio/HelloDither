@@ -34,7 +34,7 @@ export function ColorField({ label, value, onChange, ariaLabel }: ColorFieldProp
             />
           </PopoverTrigger>
           <PopoverContent side="left" align="start" sideOffset={6}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-2">
               <HexColorPicker color={value} onChange={onChange} />
               <HexColorInput
                 color={value}
@@ -68,13 +68,13 @@ export function CompactColorField({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="color-chip"
-          style={{ background: value, width: 28, height: 24 }}
+          className="color-chip w-7 h-6"
+          style={{ background: value }}
           aria-label={ariaLabel ?? "Pick color"}
         />
       </PopoverTrigger>
       <PopoverContent side="left" align="start" sideOffset={6}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="flex flex-col gap-2">
           <HexColorPicker color={value} onChange={onChange} />
           <HexColorInput
             color={value}

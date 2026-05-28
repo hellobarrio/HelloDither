@@ -30,7 +30,7 @@ export function Section({
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="section">
       <CollapsibleTrigger className="section-header" data-state={open ? "open" : "closed"}>
-        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="flex items-center gap-2">
           {icon}
           {title}
           {expertOnly ? <span className="expert-only-tag">EXPERT</span> : null}

@@ -60,7 +60,7 @@ export function CanvasStage({ emptyHero }: CanvasStageProps) {
           visibility: hasMedia ? "visible" : "hidden",
         }}
       >
-        <canvas ref={canvasRefCb} style={{ width: "100%", height: "100%" }} />
+        <canvas ref={canvasRefCb} className="w-full h-full" />
       </div>
 
       {!hasMedia ? emptyHero : null}

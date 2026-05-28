@@ -7,18 +7,18 @@ export interface ShortcutBinding {
 }
 
 const isMac =
-  typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
 
 const mod = isMac ? "⌘" : "Ctrl";
-const shift = isMac ? "⇧" : "Shift";
 
 export const SHORTCUTS = {
   playPause: { id: "play-pause", label: "Play / Pause", hint: "Space" },
-  exportPng: { id: "export-png", label: "Export PNG", hint: `${mod} S` },
+  exportPng: { id: "export-png", label: "Export PNG", hint: `${mod} P` },
   exportSvg: {
     id: "export-svg",
     label: "Export SVG",
-    hint: `${mod} ${shift} S`,
+    hint: `${mod} S`,
   },
   exportMenu: { id: "export-menu", label: "Export menu", hint: `${mod} E` },
   exportGif: { id: "export-gif", label: "Export GIF…", hint: `${mod} G` },

@@ -27,7 +27,7 @@ export function RangeSlider({
   onChange,
 }: RangeSliderProps) {
   return (
-    <div className="ctrl" style={{ gap: 8 }}>
+    <div className="ctrl gap-2!">
       <ValueSlider
         label={`Min ${label}`}
         min={min}

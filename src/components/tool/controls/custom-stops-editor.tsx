@@ -51,29 +51,26 @@ export function CustomStopsEditor({ stops, onChange }: CustomStopsEditorProps) {
   }, [stops]);
 
   return (
-    <div className="ctrl" style={{ gap: 8 }}>
+    <div className="ctrl gap-2!">
       <div className="ctrl-label">
         <span className="name">Custom stops</span>
         <button
           type="button"
-          className="btn small"
-          style={{ height: 22, padding: "0 8px", fontSize: 9 }}
+          className="btn small h-5.5 px-2 text-[9px]"
           onClick={addStop}
         >
           + Add
         </button>
       </div>
-      <div style={{ height: 28, border: "1px solid var(--fg-1)", background: gradientPreview }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div
+        className="h-7 border border-foreground"
+        style={{ background: gradientPreview }}
+      />
+      <div className="flex flex-col gap-1.5">
         {stops.map((s, i) => (
           <div
             key={`stop-${i}`}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "28px 1fr 26px",
-              gap: 6,
-              alignItems: "center",
-            }}
+            className="grid grid-cols-[28px_1fr_26px] items-center gap-1.5"
           >
             <CompactColorField
               value={s.color}
@@ -90,8 +87,7 @@ export function CustomStopsEditor({ stops, onChange }: CustomStopsEditorProps) {
             />
             <button
               type="button"
-              className="icon-btn small"
-              style={{ width: 26, height: 24 }}
+              className="icon-btn small w-6.5 h-6"
               disabled={stops.length <= 2}
               onClick={() => removeStop(i)}
               title="Remove stop"

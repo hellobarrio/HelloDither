@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Activity, Download, Film, Image as ImageIcon, Square, Video } from "lucide-react";
+import { Activity, Download, Image as ImageIcon, Square } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -25,7 +25,7 @@ export function ExportMenu({
   popoverOpen,
   setPopoverOpen,
 }: ExportMenuProps) {
-  const { actions, meta } = useDither();
+  const { actions } = useDither();
 
   const close = () => setPopoverOpen(false);
 
@@ -69,36 +69,14 @@ export function ExportMenu({
               type="button"
               className="item"
               onClick={() => {
-                actions.toggleRecord();
-                close();
-              }}
-            >
-              <span className="label">
-                <Video size={11} /> {meta.recording ? "Stop recording" : "Record WebM"}
-              </span>
-            </button>
-            <button
-              type="button"
-              className="item"
-              onClick={() => {
                 close();
                 setGifOpen(true);
               }}
             >
               <span className="label">
-                <Activity size={11} /> GIF…
+                <Activity size={11} /> GIF
               </span>
               <Kbd>{SHORTCUTS.exportGif.hint}</Kbd>
-            </button>
-            <button
-              type="button"
-              className="item disabled"
-              title="Record WebM then convert externally"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className="label">
-                <Film size={11} /> MP4 (use WebM)
-              </span>
             </button>
           </div>
         </PopoverContent>

@@ -27,7 +27,7 @@ export function Toolbar({
     <header className="app-toolbar">
       <div className="tb-section">{logo}</div>
       <div className="tb-section">
-        <label className="btn small" style={{ cursor: "pointer" }}>
+        <label className="btn small cursor-pointer">
           <Upload size={11} /> Upload
           <input
             type="file"
@@ -40,7 +40,7 @@ export function Toolbar({
             }}
           />
         </label>
-        <label className="btn small" style={{ cursor: "pointer" }}>
+        <label className="btn small cursor-pointer">
           <Music size={11} /> Audio
           <input
             type="file"
@@ -57,10 +57,7 @@ export function Toolbar({
       <div className="tb-section flex-1">
         <Playbar />
       </div>
-      <div
-        className="tb-section justify-between right w-84.75"
-        style={{ borderRight: 0, gap: 12 }}
-      >
+      <div className="tb-section right w-84.75 justify-between border-r-0! gap-3!">
         <div className="mode-toggle">
           <button
             type="button"

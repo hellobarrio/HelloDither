@@ -14,7 +14,7 @@ import { Section } from "./section";
 import { ValueSlider } from "../controls/value-slider";
 import { RangeSlider } from "../controls/range-slider";
 import { Segmented } from "../controls/segmented";
-import { Switch } from "@/components/ui/switch";
+import { SwitchRow } from "../controls/switch-row";
 import { useDither } from "@/state/dither-context";
 import type { CellShape, DeformMode, StretchAxis } from "@/lib/types";
 
@@ -47,32 +47,6 @@ const STRETCH_AXIS_OPTIONS: readonly {
   { value: "horizontal", label: "Horiz.", icon: <ArrowLeftRight size={11} /> },
   { value: "both", label: "Both", icon: <Move size={11} /> },
 ];
-
-function ToggleRow({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <span
-        style={{
-          textTransform: "uppercase",
-          fontSize: 10,
-          letterSpacing: "0.06em",
-          color: "var(--fg-2)",
-        }}
-      >
-        {label}
-      </span>
-      <Switch checked={value} onCheckedChange={onChange} />
-    </div>
-  );
-}
 
 export function GridSection() {
   const { state, actions } = useDither();
@@ -190,10 +164,10 @@ export function GridSection() {
         </>
       ) : null}
 
-      <ToggleRow
+      <SwitchRow
         label="Stretch into lines"
-        value={g.stretchEnabled}
-        onChange={(v) => actions.update({ grid: { ...g, stretchEnabled: v } })}
+        checked={g.stretchEnabled}
+        onCheckedChange={(v) => actions.update({ grid: { ...g, stretchEnabled: v } })}
       />
       {g.stretchEnabled ? (
         <>
@@ -242,10 +216,10 @@ export function GridSection() {
         </>
       ) : null}
 
-      <ToggleRow
+      <SwitchRow
         label="Invert"
-        value={g.invert}
-        onChange={(v) => actions.update({ grid: { ...g, invert: v } })}
+        checked={g.invert}
+        onCheckedChange={(v) => actions.update({ grid: { ...g, invert: v } })}
       />
     </Section>
   );

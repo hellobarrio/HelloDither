@@ -1,8 +1,4 @@
-import type {
-  DitherState,
-  GradientPreset,
-  SizePreset,
-} from "@/lib/types";
+import type { DitherState, GradientPreset, SizePreset } from "@/lib/types";
 
 export const GRADIENT_PRESETS: readonly GradientPreset[] = [
   {
@@ -86,9 +82,9 @@ export const DEFAULT_STATE: DitherState = {
     gap: 1,
     pixelSize: 14,
     mode: "height",
-    minH: 0,
+    minH: 25,
     maxH: 100,
-    minW: 100,
+    minW: 25,
     maxW: 100,
     invert: false,
     intensity: 1.0,
@@ -101,11 +97,11 @@ export const DEFAULT_STATE: DitherState = {
     stretchH: 0,
     stretchV: 100,
     lineThickness: 60,
-    lineTaper: 60,
+    lineTaper: 75,
   },
   color: {
-    bg: "#ededed",
-    fg: "#ff4141",
+    bg: "#FFFFFF",
+    fg: "#000000",
     useGradient: false,
     gradientType: "linear",
     gradientAngle: 90,

@@ -33,7 +33,7 @@ export function MediaSection() {
               width={m.width || 320}
               height={m.height || 180}
               unoptimized
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              className="w-full h-full object-contain"
             />
           ) : (
             <video src={m.url} muted loop playsInline />

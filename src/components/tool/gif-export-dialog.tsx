@@ -93,11 +93,11 @@ function GifExportDialogInner({ onClose }: GifExportDialogInnerProps) {
         <DialogDescription>
           {isVideo
             ? "Capture a range of the video and encode it as an animated GIF."
-            : "Encode the current canvas (audio reactive or static) into a GIF."}
+            : "Encode the current canvas into a GIF."}
         </DialogDescription>
       </DialogHeader>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 14 }}>
+      <div className="mt-3.5 flex flex-col gap-3.5">
         <ValueSlider
           label="FPS"
           min={5}
@@ -143,24 +143,27 @@ function GifExportDialogInner({ onClose }: GifExportDialogInnerProps) {
 
         {exporting ? (
           <div className="progress-bar" aria-label="Export progress">
-            <div className="fill" style={{ transform: `scaleX(${progress})` }} />
+            <div
+              className="fill"
+              style={{ transform: `scaleX(${progress})` }}
+            />
           </div>
         ) : null}
       </div>
 
-      <DialogFooter
-        style={{ marginTop: 18, display: "flex", gap: 8, justifyContent: "flex-end" }}
-      >
+      <DialogFooter className="mt-4.5 flex justify-end gap-2">
         <button type="button" className="btn small" onClick={onCancel}>
           {exporting ? "Cancel" : "Close"}
         </button>
         <button
           type="button"
-          className="btn small dark"
+          className="btn small dark min-w-32 justify-center tabular-nums"
           onClick={onSubmit}
           disabled={exporting}
         >
-          {exporting ? `Encoding… ${Math.round(progress * 100)}%` : "Export GIF"}
+          {exporting
+            ? `Encoding… ${Math.round(progress * 100)}%`
+            : "Export GIF"}
         </button>
       </DialogFooter>
     </DialogContent>
@@ -172,7 +175,9 @@ export function GifExportDialog({ open, onOpenChange }: GifExportDialogProps) {
   // on each open without triggering `set-state-in-effect`.
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {open ? <GifExportDialogInner onClose={() => onOpenChange(false)} /> : null}
+      {open ? (
+        <GifExportDialogInner onClose={() => onOpenChange(false)} />
+      ) : null}
     </Dialog>
   );
 }

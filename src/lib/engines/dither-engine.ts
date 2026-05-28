@@ -8,6 +8,7 @@ import type {
   AudioReading,
   DitherEngine,
   DitherState,
+  GifFrame,
   GradientStop,
   RecordingHandle,
   RecordingOptions,
@@ -28,7 +29,11 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
   let state: DitherState | null = null;
   let mediaEl: MediaEl = null;
   let mediaIsAnimated = false;
+  let gifFrames: GifFrame[] | null = null;
+  let gifTotalDurationMs = 0;
+  let gifStartMs = 0;
   let audioFn: AudioFn = null;
+  let audioActive = false;
   let rafHandle: number | null = null;
   let needsRedraw = true;
   let smoothedAudio = 0;
@@ -38,15 +43,40 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
     needsRedraw = true;
   }
 
-  function setMedia(el: MediaEl, opts?: { animated?: boolean }): void {
+  function setMedia(
+    el: MediaEl,
+    opts?: { animated?: boolean; gifFrames?: GifFrame[] | null },
+  ): void {
     mediaEl = el;
     mediaIsAnimated = !!opts?.animated;
+    gifFrames = opts?.gifFrames ?? null;
+    gifTotalDurationMs = gifFrames
+      ? gifFrames.reduce((s, f) => s + f.durationMs, 0)
+      : 0;
+    gifStartMs = performance.now();
     needsRedraw = true;
   }
 
   function setAudio(fn: AudioFn): void {
     audioFn = fn;
+    if (!fn) smoothedAudio = 0;
     needsRedraw = true;
+  }
+
+  function setAudioActive(active: boolean): void {
+    audioActive = active;
+  }
+
+  function currentGifBitmap(): ImageBitmap | null {
+    if (!gifFrames || gifFrames.length === 0) return null;
+    if (gifTotalDurationMs <= 0) return gifFrames[0].bitmap;
+    const t = (performance.now() - gifStartMs) % gifTotalDurationMs;
+    let acc = 0;
+    for (const f of gifFrames) {
+      acc += f.durationMs;
+      if (t < acc) return f.bitmap;
+    }
+    return gifFrames[gifFrames.length - 1].bitmap;
   }
 
   function invalidate(): void {
@@ -64,9 +94,21 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
   // Scale the source media into a cols×rows ImageData buffer.
   function sampleMediaToGrid(cols: number, rows: number): ImageData | null {
     if (!mediaEl || !state) return null;
+    const gifBitmap = currentGifBitmap();
+    const drawSource: CanvasImageSource = gifBitmap ?? mediaEl;
     const el = mediaEl as HTMLVideoElement & HTMLImageElement;
-    const srcW = el.videoWidth || el.naturalWidth || el.width || 0;
-    const srcH = el.videoHeight || el.naturalHeight || el.height || 0;
+    const srcW =
+      gifBitmap?.width ||
+      el.videoWidth ||
+      el.naturalWidth ||
+      el.width ||
+      0;
+    const srcH =
+      gifBitmap?.height ||
+      el.videoHeight ||
+      el.naturalHeight ||
+      el.height ||
+      0;
     if (!srcW || !srcH) return null;
 
     const W = cols;
@@ -82,7 +124,7 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
     const srcAR = srcW / srcH;
 
     if (fit === "stretch") {
-      sampleCtx.drawImage(mediaEl, 0, 0, srcW, srcH, 0, 0, W, H);
+      sampleCtx.drawImage(drawSource, 0, 0, srcW, srcH, 0, 0, W, H);
     } else if (fit === "contain") {
       let dw: number;
       let dh: number;
@@ -99,7 +141,7 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
         dx = (W - dw) / 2;
         dy = 0;
       }
-      sampleCtx.drawImage(mediaEl, 0, 0, srcW, srcH, dx, dy, dw, dh);
+      sampleCtx.drawImage(drawSource, 0, 0, srcW, srcH, dx, dy, dw, dh);
     } else {
       // cover
       let sx = 0;
@@ -113,7 +155,7 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
         sh = srcW / canvasAR;
         sy = (srcH - sh) / 2;
       }
-      sampleCtx.drawImage(mediaEl, sx, sy, sw, sh, 0, 0, W, H);
+      sampleCtx.drawImage(drawSource, sx, sy, sw, sh, 0, 0, W, H);
     }
     try {
       return sampleCtx.getImageData(0, 0, W, H);
@@ -165,6 +207,7 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
 
   function getAudioBoost(): number {
     if (!audioFn || !state) return 0;
+    if (!audioActive) return clamp(smoothedAudio, 0, 2);
     const a = state.audio;
     const m = audioFn();
     if (!m) return 0;
@@ -343,8 +386,11 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
       mediaEl.tagName === "VIDEO" &&
       !(mediaEl as HTMLVideoElement).paused &&
       !(mediaEl as HTMLVideoElement).ended;
-    const isAudioLive = !!audioFn;
-    const isGifLive = !!(mediaEl && mediaIsAnimated && mediaEl.tagName === "IMG");
+    const isAudioLive = !!audioFn && audioActive;
+    const isGifLive = !!(
+      mediaIsAnimated &&
+      (gifFrames || (mediaEl && mediaEl.tagName === "IMG"))
+    );
     const live = isVideoLive || isAudioLive || isGifLive;
     if (needsRedraw || live) {
       draw();
@@ -568,6 +614,7 @@ export function createDitherEngine(canvas: HTMLCanvasElement): DitherEngine {
     setSettings,
     setMedia,
     setAudio,
+    setAudioActive,
     resizeCanvasToTarget,
     invalidate,
     start,

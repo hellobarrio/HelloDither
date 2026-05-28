@@ -169,13 +169,19 @@ export interface RecordingOptions {
   onStop?: () => void;
 }
 
+export interface GifFrame {
+  bitmap: ImageBitmap;
+  durationMs: number;
+}
+
 export interface DitherEngine {
   setSettings: (s: DitherState) => void;
   setMedia: (
     el: HTMLImageElement | HTMLVideoElement | null,
-    opts?: { animated?: boolean },
+    opts?: { animated?: boolean; gifFrames?: GifFrame[] | null },
   ) => void;
   setAudio: (fn: (() => AudioReading | null) | null) => void;
+  setAudioActive: (active: boolean) => void;
   resizeCanvasToTarget: (w: number, h: number) => void;
   invalidate: () => void;
   start: () => void;
