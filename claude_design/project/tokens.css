@@ -1,0 +1,251 @@
+/* ============================================================
+   hellobarrio — Colors & Type
+   Source of truth: tailwind.config.ts + app/globals.css
+   ============================================================ */
+
+/* ---------- FONT FACES (TWK Everett, self-hosted) ---------- */
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-RegularItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TWK Everett";
+  src: url("fonts/TWKEverett-Black.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- TOKENS ---------- */
+:root {
+  /* Foundational neutrals (from globals.css) */
+  --hb-black: #1e1e1c;          /* near-black used in logo/text */
+  --hb-black-pure: #000000;
+  --hb-grigio: #ededed;         /* default neutral surface */
+  --hb-rosso: #ff4141;          /* "rosso" brand red used in CSS vars */
+  --hb-white: #ffffff;
+
+  /* Semantic foreground / background */
+  --fg-1: var(--hb-black);
+  --fg-2: rgba(30, 30, 28, 0.7);
+  --fg-3: rgba(30, 30, 28, 0.45);
+  --fg-on-primary: var(--hb-black);
+  --bg-base: var(--hb-grigio);
+  --bg-surface: var(--hb-grigio);
+  --bg-inverse: var(--hb-black);
+  --fg-inverse: var(--hb-grigio);
+
+  /* "Primary" color is the active barrio theme.
+     Defaults to Borgo del Fumo (the rosso). */
+  --primary: var(--hb-rosso);
+
+  /* All barrio (neighborhood) themes — single accent each */
+  --barrio-del-fumo: #ff4747;
+  --barrio-nolo: #f4eb6e;
+  --barrio-lingotto: #c6c6c6;
+  --barrio-quartieri-spagnoli: #39a9ff;
+  --barrio-kreuzberg: #d7d0b6;
+  --barrio-museumplein: #ff8686;
+  --barrio-camden-town: #82bfad;
+  --barrio-christiania: #a7eab7;
+  --barrio-bairro-alto: #ffbc2a;
+  --barrio-el-raval: #ff8b61;
+  --barrio-ile-de-la-cite: #a2aa99;
+  --barrio-le-panier: #55e5d9;
+  --barrio-coney-island: #9aa6e2;
+  --barrio-taito: #ffffff;
+  --barrio-thamel: #ff7189;
+  --barrio-la-boca: #2591ff;
+  --barrio-copacabana: #ffd500;
+  --barrio-temple-bar: #88d685;
+
+  /* Type families */
+  --font-primary: "TWK Everett", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (from tailwind.config.ts; clamp values trimmed for static use) */
+  --text-giant: clamp(40px, 5.95vw, 90px);
+  --text-big: clamp(30px, 3.83vw, 58px);
+  --text-large: clamp(20px, 2.38vw, 36px);
+  --text-mid: clamp(20px, 1.785vw, 27px);
+  --text-standard: clamp(14px, 0.99vw, 15px);
+  --text-footer: clamp(13px, 0.99vw, 15px);
+  --text-small: clamp(12px, 0.6vw, 12px);
+
+  /* Landing-page scale */
+  --text-titolo-landing: clamp(42px, 7.93vw, 220px);
+  --text-titolo-alt-landing: clamp(60px, 9.92vw, 280px);
+  --text-sottotitolo-landing: clamp(30px, 3.84vw, 110px);
+  --text-testo-landing: clamp(20px, 1.79vw, 50px);
+  --text-cta-landing: clamp(14px, 0.99vw, 16px);
+
+  /* Spacing (from globals.css :root) */
+  --distance-half: 15px;
+  --distance: 30px;
+  --distance-medium: 40px;
+  --distance-big: 100px;
+  --wrapper-offset: clamp(60px, 3.96825vw, 60px);
+  --container-padding: clamp(16px, 1.98vw, 30px);
+
+  /* Radii — hellobarrio is overwhelmingly square. Reserve radii for
+     pills, dots, the floating "shop" badge. */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-pill: 9999px;
+  --radius-dot: 9999px;
+
+  /* Transitions */
+  --t-short: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-base: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-long: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-underline: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1);
+
+  /* Borders — almost always 1px hairline in fg color */
+  --border-hairline: 1px solid var(--fg-1);
+
+  /* Shadows — the brand uses none on flat UI; only the floating
+     shop/whatsapp pill gets an elevated shadow. */
+  --shadow-none: none;
+  --shadow-floating: 0 18px 40px -10px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- SEMANTIC ELEMENT STYLES ---------- */
+html, body {
+  font-family: var(--font-primary);
+  color: var(--fg-1);
+  background: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display / titles */
+.h-giant, .titolo-alt-landing {
+  font-size: var(--text-titolo-alt-landing);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+.h-titolo-landing, h1.landing {
+  font-size: var(--text-titolo-landing);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+h1, .h1 {
+  font-size: var(--text-giant);
+  font-weight: 300;
+  line-height: 0.77;
+  letter-spacing: 0;
+}
+h2, .h2 {
+  font-size: var(--text-big);
+  font-weight: 500;
+  line-height: 1.2;
+}
+h3, .h3 {
+  font-size: var(--text-large);
+  font-weight: 400;
+  line-height: 1.2;
+}
+h4, .h4 {
+  font-size: var(--text-mid);
+  font-weight: 400;
+  line-height: 1.44;
+}
+p, .p, body {
+  font-size: var(--text-standard);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.text-mid    { font-size: var(--text-mid); line-height: 1.44; }
+.text-footer { font-size: var(--text-footer); line-height: 1.2; text-transform: uppercase; }
+.text-small  { font-size: var(--text-small); line-height: 1.2; font-weight: 300; }
+.text-cta    { font-size: var(--text-cta-landing); line-height: 1; text-transform: uppercase; letter-spacing: 0; }
+
+/* The signature uppercase-everywhere navigational + meta voice */
+.uppercase-meta {
+  text-transform: uppercase;
+  font-size: var(--text-standard);
+  letter-spacing: 0;
+}
+
+/* Hover-underline (lifted from globals.css) */
+.hover-underline {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+.hover-underline::after {
+  content: "";
+  background-color: currentColor;
+  bottom: 0;
+  height: 1px;
+  left: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: var(--t-underline);
+  width: 100%;
+}
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+
+/* Container */
+.hb-container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+  max-width: 9999px;
+}
+
+/* Hairline row (used in footer + lots of meta UI) */
+.hb-row {
+  border-top: var(--border-hairline);
+  display: flex;
+  align-items: center;
+  height: 50px;
+  font-size: var(--text-footer);
+  text-transform: uppercase;
+}
